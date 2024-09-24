@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Management</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="resource-management-container">
+        <h2>Resource Management</h2>
+        <div class="hw-capacity-area">
+            <h3>HWSet Capacities</h3>
+            <p>HWSet1 Capacity: <span id="hwset1Capacity">50</span></p>
+            <p>HWSet2 Capacity: <span id="hwset2Capacity">30</span></p>
+        </div>
+
+        <div class="hw-availability-area">
+            <h3>HWSet Availability</h3>
+            <p>HWSet1 Availability: <span id="hwset1Availability">25</span></p>
+            <p>HWSet2 Availability: <span id="hwset2Availability">15</span></p>
+        </div>
+
+        <div class="checkout-area">
+            <h3>Checkout Hardware</h3>
+            <div class="input-group">
+                <input type="number" min="1" required>
+                <label>Units of HWSet1</label>
+            </div>
+            <div class="input-group">
+                <input type="number" min="1" required>
+                <label>Units of HWSet2</label>
+            </div>
+            <button id="checkoutBtn">Checkout</button>
+        </div>
+
+        <div class="checkin-area">
+            <h3>Check-in Hardware</h3>
+            <div class="input-group">
+                <input type="number" min="1" required>
+                <label>Units of HWSet1</label>
+            </div>
+            <div class="input-group">
+                <input type="number" min="1" required>
+                <label>Units of HWSet2</label>
+            </div>
+            <button id="checkinBtn">Check-in</button>
+        </div>
+    </div>
+</body>
+</html>
