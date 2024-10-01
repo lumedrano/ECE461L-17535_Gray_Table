@@ -34,12 +34,27 @@ User = {
 # Function to add a new user
 def addUser(client, username, userId, password):
     # Add a new user to the database
-    pass
+    if collection.find_one({'username': username, 'userId': userId}):
+        return "User already exist."
+    encryptedpassword = cipher.encrypt(password, 3, 1)
+    new_user = {
+        'username': username,
+        'userId': userId,
+        'passsword': encryptedpassword,
+        'projects': []
+    }
+    
+    result = collection.insert_one(new_user)
+    if result.acknowledged:
+        return "User wass added successfully."
+    else:
+        return "Failed to add user."
 
 # Helper function to query a user by username and userId
 def __queryUser(client, username, userId):
     # Query and return a user from the database
-    pass
+    user = collection.find_one({'username': username, 'userId': userId})
+    return user
 
 # Function to log in a user
 #TODO: test and check with Kimberly
