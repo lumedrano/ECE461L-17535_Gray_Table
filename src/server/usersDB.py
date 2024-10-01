@@ -4,6 +4,7 @@
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
+import cipher
 
 
 #for reference
@@ -41,16 +42,50 @@ def __queryUser(client, username, userId):
     pass
 
 # Function to log in a user
-def login(client, username, userId, password):
-    # Authenticate a user and return login status
-    pass
+#TODO: test and check with Kimberly
+def login(username, userId, password):
+
+    #find person using query function from above
+    user = __queryUser(username, userId)
+    #check if user is found, if so then use decrypt function on password by passing password in
+    if user:
+        encrypted_pw = user['password']
+        decrypted_pw = cipher.decrypt(encrypted_pw, 3, 1)
+        
+        #if match then return something that they are logged in
+        if decrypted_pw == password:
+            return "Login Successful!"
+        #if not, return error message saying invalid 
+        return "Invalid password."
+    #if user was not found by username/id then return user not found
+    return "User not found."
 
 # Function to add a user to a project
-def joinProject(client, userId, projectId):
+def joinProject(userId, projectId):
     # Add a user to a specified project
-    pass
+
+    if not collection.find_one({'userId': userId}):
+        return "User not found"
+    
+    result = collection.update_one(
+        {'userId': userId},
+        {'$addToSet':{'projectId': projectId}}
+    )
+
+    if result.modified_count > 0:
+        return "Successfully added to project!"
+    else:
+        "Already added to project."
 
 # Function to get the list of projects for a user
-def getUserProjectsList(client, userId):
+def getUserProjectsList(userId):
     # Get and return the list of projects a user is part of
-    pass
+
+    #find user in db
+    user = collection.find_one({'userId': userId})
+    
+    # if found use .get to obtain projects
+    if user:
+        return user.get('projects', [])
+    else:
+        return "user not found"
