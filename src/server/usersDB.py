@@ -64,15 +64,28 @@ def login(username, userId, password):
 def joinProject(userId, projectId):
     # Add a user to a specified project
 
-    #find userID, if found then continue to check for projectID
+    if not collection.find_one({'userId': userId}):
+        return "User not found"
     
-    #if projectID is found then add projectID to user's project list
-    pass
+    result = collection.update_one(
+        {'userId': userId},
+        {'$addToSet':{'projectId': projectId}}
+    )
+
+    if result.modified_count > 0:
+        return "Successfully added to project!"
+    else:
+        "Already added to project."
 
 # Function to get the list of projects for a user
-def getUserProjectsList(client, userId):
+def getUserProjectsList(userId):
     # Get and return the list of projects a user is part of
 
     #find user in db
-    #if found then return their list of projects(maybe a for loop)
-    pass
+    user = collection.find_one({'userId': userId})
+    
+    # if found use .get to obtain projects
+    if user:
+        return user.get('projects', [])
+    else:
+        return "user not found"
