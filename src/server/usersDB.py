@@ -50,7 +50,7 @@ def login(username, userId, password):
     #check if user is found, if so then use decrypt function on password by passing password in
     if user:
         encrypted_pw = user['password']
-        decrypted_pw = cipher.decrypt(encrypted_pw, 3, -1)
+        decrypted_pw = cipher.decrypt(encrypted_pw, 3, 1)
         
         #if match then return something that they are logged in
         if decrypted_pw == password:
