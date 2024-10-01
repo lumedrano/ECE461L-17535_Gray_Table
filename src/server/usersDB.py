@@ -18,17 +18,17 @@ User = {
 }
 '''
 
-load_dotenv()
+# load_dotenv()
 
-connection_string = os.getenv('MONGODB_CONNECTION_STRING')
+# connection_string = os.getenv('MONGODB_CONNECTION_STRING')
 
-client = MongoClient(connection_string)
+# client = MongoClient(connection_string)
 
-# Access a database
-db = client['ece461l_final_project']
+# # Access a database
+# db = client['ece461l_final_project']
 
-# Access a collection
-collection = db['usersDB']
+# # Access a collection
+# collection = db['usersDB']
 
 
 # Function to add a new user
