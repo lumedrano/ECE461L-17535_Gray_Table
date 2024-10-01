@@ -4,6 +4,7 @@
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
+import cipher
 
 
 #for reference
@@ -41,13 +42,31 @@ def __queryUser(client, username, userId):
     pass
 
 # Function to log in a user
-def login(client, username, userId, password):
-    # Authenticate a user and return login status
-    pass
+#TODO: test and check with Kimberly
+def login(username, userId, password):
+
+    #find person using query function from above
+    user = __queryUser(username, userId)
+    #check if user is found, if so then use decrypt function on password by passing password in
+    if user:
+        encrypted_pw = user['password']
+        decrypted_pw = cipher.decrypt(encrypted_pw, 3, -1)
+        
+        #if match then return something that they are logged in
+        if decrypted_pw == password:
+            return "Login Successful!"
+        #if not, return error message saying invalid 
+        return "Invalid password."
+    #if user was not found by username/id then return user not found
+    return "User not found."
 
 # Function to add a user to a project
-def joinProject(client, userId, projectId):
+def joinProject(userId, projectId):
     # Add a user to a specified project
+
+    #find userID, if found then continue to check for projectID
+    
+    #if projectID is found then add projectID to user's project list
     pass
 
 # Function to get the list of projects for a user
