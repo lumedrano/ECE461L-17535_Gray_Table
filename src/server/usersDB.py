@@ -36,6 +36,8 @@ def get_collection():
 
 # Function to add a new user
 def addUser(username, userId, password):
+    if not username or not userId or not password:
+        return "Username, userId, and password are required."
     try:
         collection = get_collection()
         # Add a new user to the database
@@ -69,6 +71,8 @@ def __queryUser(username, userId):
 
 # Function to log in a user
 def login(username, userId, password):
+    if not username or not userId or not password:
+        return "Username, userId, and password are required."
     try:
         #find person using query function from above
         user = __queryUser(username, userId)
@@ -89,6 +93,8 @@ def login(username, userId, password):
 
 # Function to add a user to a project
 def joinProject(userId, projectId):
+    if not userId or not projectId:
+        return "userId and projectId are required."
     try:
         collection = get_collection()
         # Add a user to a specified project
@@ -109,6 +115,8 @@ def joinProject(userId, projectId):
 
 # Function to get the list of projects for a user
 def getUserProjectsList(userId):
+    if not userId:
+        return "userId is required."
     try:
         collection = get_collection()
         # Get and return the list of projects a user is part of
