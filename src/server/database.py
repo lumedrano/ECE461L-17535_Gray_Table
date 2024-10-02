@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def get_database():
-   connection_string = os.getenv('CONNECTION_STRING')
+   connection_string = os.getenv('MONGODB_CONNECTION_STRING')
    try:
       client = MongoClient(connection_string, server_api=ServerApi('1'))
    except Exception:

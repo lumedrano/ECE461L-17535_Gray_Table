@@ -68,7 +68,6 @@ def __queryUser(username, userId):
         return None
 
 # Function to log in a user
-#TODO: test and check with Kimberly
 def login(username, userId, password):
     try:
         #find person using query function from above
@@ -124,3 +123,30 @@ def getUserProjectsList(userId):
             return "User not found"
     except Exception as e:
         return f"An error occurred while getting user projects: {str(e)}"
+    
+# test statements for the project functions
+# def test_joinProject():
+#     # attempt to add a user to a project
+#     print("Testing joinProject...")
+#     result = joinProject("1001", "project001")
+#     print(f"Join Project Result: {result}")
+    
+#     # attempt to add the same user to the same project again
+#     result = joinProject("1001", "project001")
+#     print(f"Join Project Again (should indicate already added): {result}")
+
+# def test_getUserProjectsList():
+#     # attempt to get the list of projects for the user
+#     print("Testing getUserProjectsList...")
+#     projects = getUserProjectsList("1001")
+#     print(f"User Projects List: {projects}")
+
+# if __name__ == "__main__":
+#     print("Testing addUser and login functions...")
+#     print(addUser("Luigi", "1001", "test123"))
+#     print(login("Luigi", "1001", "test123"))
+#     print(login("Luigi", "1001", "test122"))
+
+#     print("\nTesting project functions...")
+#     test_joinProject()
+#     test_getUserProjectsList()
