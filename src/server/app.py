@@ -11,7 +11,7 @@ import hardwareDB
 from database import get_database
 
 # Define the MongoDB connection string
-MONGODB_SERVER = "your_mongodb_connection_string_here"
+# MONGODB_SERVER = "your_mongodb_connection_string_here"
 
 # Initialize a new Flask web application
 app = Flask(__name__)
