@@ -13,6 +13,10 @@ from database import get_database
 # Define the MongoDB connection string
 # MONGODB_SERVER = "your_mongodb_connection_string_here"
 
+#TODO: would it be better to create and close connections on here or on usersDB/projectsDB/hardwareDB python files?
+#TODO; look into if I should use if statements on here with status codes 200, 201, 404, etc.
+#TODO: Query: i have a database.py file [insert file] that connects to MongoDB, I use it in usersDB and plan on using it within two other files, should I instead use it in my main app.py file to connect/close for each function call?
+
 # Initialize a new Flask web application
 app = Flask(__name__)
 
@@ -20,15 +24,16 @@ app = Flask(__name__)
 @app.route('/login', methods=['POST'])
 def login():
     # Extract data from request
-
-    # Connect to MongoDB
+    data = request.json
+    user = data.get('username')
+    userId = data.get('userId')
+    password = data.get('password')
 
     # Attempt to log in the user using the usersDB module
-
-    # Close the MongoDB connection
+    result = usersDB.login(user, userId, password)
 
     # Return a JSON response
-    return jsonify({})
+    return jsonify({'message: ': result})
 
 # Route for the main page (Work in progress)
 @app.route('/main')
@@ -48,43 +53,42 @@ def mainPage():
 @app.route('/join_project', methods=['POST'])
 def join_project():
     # Extract data from request
-
-    # Connect to MongoDB
+    data = request.json
+    userId = data.get('userId')
+    projectId = data.get('projectId')
 
     # Attempt to join the project using the usersDB module
-
-    # Close the MongoDB connection
-
+    result = usersDB.joinProject(userId, projectId)
     # Return a JSON response
-    return jsonify({})
+    return jsonify({'message': result})
 
 # Route for adding a new user
 @app.route('/add_user', methods=['POST'])
 def add_user():
     # Extract data from request
-
-    # Connect to MongoDB
+    data = request.json
+    user = data.get('username')
+    userId= data.get('userId')
+    password = data.get('password')
 
     # Attempt to add the user using the usersDB module
-
-    # Close the MongoDB connection
+    result = usersDB.addUser(user, userId, password)
 
     # Return a JSON response
-    return jsonify({})
+    return jsonify({'message': result})
 
 # Route for getting the list of user projects
 @app.route('/get_user_projects_list', methods=['POST'])
 def get_user_projects_list():
     # Extract data from request
-
-    # Connect to MongoDB
+    data = request.json
+    userId = data.get('userId')
 
     # Fetch the user's projects using the usersDB module
-
-    # Close the MongoDB connection
+    result = usersDB.getUserProjectsList(userId)
 
     # Return a JSON response
-    return jsonify({})
+    return jsonify({'message': result})
 
 # Route for creating a new project
 @app.route('/create_project', methods=['POST'])

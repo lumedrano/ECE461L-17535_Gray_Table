@@ -19,6 +19,9 @@ User = {
 }
 '''
 
+#TODO: may need to edit MONGODB Client to CLOSE connection after each call to function
+
+
 # Global variables for client and collection
 client = None
 collection = None
