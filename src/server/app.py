@@ -1,24 +1,39 @@
 
 # Import necessary libraries and modules
 from bson.objectid import ObjectId
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, g
 from pymongo import MongoClient
+from pymongo.server_api import ServerApi
+from dotenv import load_dotenv
+import os
 
 # Import custom modules for database interactions
 import usersDB
 import projectsDB
 import hardwareDB
-from database import get_database
 
 # Define the MongoDB connection string
 # MONGODB_SERVER = "your_mongodb_connection_string_here"
 
-#TODO: would it be better to create and close connections on here or on usersDB/projectsDB/hardwareDB python files?
 #TODO; look into if I should use if statements on here with status codes 200, 201, 404, etc.
-#TODO: Query: i have a database.py file [insert file] that connects to MongoDB, I use it in usersDB and plan on using it within two other files, should I instead use it in my main app.py file to connect/close for each function call?
 
 # Initialize a new Flask web application
 app = Flask(__name__)
+
+#load in environmental variables
+load_dotenv()
+
+@app.before_request
+def before_request():
+    g.client = MongoClient(os.getenv('MONGODB_CONNECTION_STRING'), server_api=ServerApi('1'))
+    g.db = g.client['ece461l_final_project']
+
+@app.teardown_request
+def teardown_request(exc=None):
+    client = g.pop('client', None)
+    if client:
+        client.close()
+
 
 # Route for user login
 @app.route('/login', methods=['POST'])
@@ -30,10 +45,10 @@ def login():
     password = data.get('password')
 
     # Attempt to log in the user using the usersDB module
-    result = usersDB.login(user, userId, password)
+    result = usersDB.login(g.db, user, userId, password)
 
     # Return a JSON response
-    return jsonify({'message: ': result})
+    return jsonify({'message': result})
 
 # Route for the main page (Work in progress)
 @app.route('/main')
@@ -58,7 +73,7 @@ def join_project():
     projectId = data.get('projectId')
 
     # Attempt to join the project using the usersDB module
-    result = usersDB.joinProject(userId, projectId)
+    result = usersDB.joinProject(g.db, userId, projectId)
     # Return a JSON response
     return jsonify({'message': result})
 
@@ -72,7 +87,7 @@ def add_user():
     password = data.get('password')
 
     # Attempt to add the user using the usersDB module
-    result = usersDB.addUser(user, userId, password)
+    result = usersDB.addUser(g.db, user, userId, password)
 
     # Return a JSON response
     return jsonify({'message': result})
@@ -85,7 +100,7 @@ def get_user_projects_list():
     userId = data.get('userId')
 
     # Fetch the user's projects using the usersDB module
-    result = usersDB.getUserProjectsList(userId)
+    result = usersDB.getUserProjectsList(g.db, userId)
 
     # Return a JSON response
     return jsonify({'message': result})
