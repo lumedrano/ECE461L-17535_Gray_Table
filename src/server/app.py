@@ -20,7 +20,8 @@ import hardwareDB
 
 # Initialize a new Flask web application
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+
 
 #load in environmental variables
 load_dotenv()
@@ -234,4 +235,4 @@ def check_inventory():
 
 # Main entry point for the application
 if __name__ == '__main__':
-    app.run(debug=True, port=3000)
+    app.run(debug=True)

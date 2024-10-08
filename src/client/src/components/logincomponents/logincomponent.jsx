@@ -18,7 +18,7 @@ const UserManagement = () => {
   const navigate = useNavigate();
   const [cookies, setCookie] = useCookies(['userID']);
 
-  const API_BASE_URL = process.env.APP_API_URL || 'http://localhost:3000';
+  const API_BASE_URL = process.env.APP_API_URL || 'http://127.0.0.1:5000';
 
   const handleSignIn = async () => {
     try {
@@ -32,7 +32,8 @@ const UserManagement = () => {
   
       if (response.ok) {
         setCookie("userID", data.userId, { path: '/' });
-        navigate("/projects");
+        alert("Sign in was a success!")
+        // navigate("/projects");
       } else {
         alert(`Login failed: ${data.message}`);
       }
