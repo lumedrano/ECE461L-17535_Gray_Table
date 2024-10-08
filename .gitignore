@@ -2,3 +2,4 @@
 medranovenv/
 kimberlyvenv/
 .env
+src/client/node_modules/
