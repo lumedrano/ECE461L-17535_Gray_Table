@@ -38,17 +38,22 @@ def teardown_request(exc=None):
 # Route for user login
 @app.route('/login', methods=['POST'])
 def login():
-    # Extract data from request
     data = request.json
-    user = data.get('username')
+    username = data.get('username')
     userId = data.get('userId')
     password = data.get('password')
 
-    # Attempt to log in the user using the usersDB module
-    result = usersDB.login(g.db, user, userId, password)
+    if not all([username, userId, password]):
+        return jsonify({'message': 'Username, userId, and password are required.'}), 400
 
-    # Return a JSON response
-    return jsonify({'message': result})
+    result = usersDB.login(g.db, username, userId, password)
+
+    if result == "Login Successful!":
+        return jsonify({'message': result, 'userId': userId}), 200
+    elif result == "Invalid password.":
+        return jsonify({'message': result}), 401
+    else:
+        return jsonify({'message': result}), 400
 
 # Route for the main page (Work in progress)
 @app.route('/main')
@@ -67,43 +72,55 @@ def mainPage():
 # Route for joining a project
 @app.route('/join_project', methods=['POST'])
 def join_project():
-    # Extract data from request
     data = request.json
     userId = data.get('userId')
     projectId = data.get('projectId')
 
-    # Attempt to join the project using the usersDB module
+    if not all([userId, projectId]):
+        return jsonify({'message': 'userId and projectId are required.'}), 400
+
     result = usersDB.joinProject(g.db, userId, projectId)
-    # Return a JSON response
-    return jsonify({'message': result})
+
+    if result == "Successfully added to project!":
+        return jsonify({'message': result}), 200
+    elif result == "User not found":
+        return jsonify({'message': result}), 404
+    else:
+        return jsonify({'message': result}), 400
 
 # Route for adding a new user
 @app.route('/add_user', methods=['POST'])
 def add_user():
-    # Extract data from request
     data = request.json
-    user = data.get('username')
-    userId= data.get('userId')
+    username = data.get('username')
+    userId = data.get('userId')
     password = data.get('password')
 
-    # Attempt to add the user using the usersDB module
-    result = usersDB.addUser(g.db, user, userId, password)
+    if not all([username, userId, password]):
+        return jsonify({'message': 'Username, userId, and password are required.'}), 400
 
-    # Return a JSON response
-    return jsonify({'message': result})
+    result = usersDB.addUser(g.db, username, userId, password)
+
+    if result == "User added successfully.":
+        return jsonify({'message': result, 'userId': userId}), 201
+    else:
+        return jsonify({'message': result}), 400
 
 # Route for getting the list of user projects
 @app.route('/get_user_projects_list', methods=['POST'])
 def get_user_projects_list():
-    # Extract data from request
     data = request.json
     userId = data.get('userId')
 
-    # Fetch the user's projects using the usersDB module
+    if not userId:
+        return jsonify({'message': 'userId is required.'}), 400
+
     result = usersDB.getUserProjectsList(g.db, userId)
 
-    # Return a JSON response
-    return jsonify({'message': result})
+    if isinstance(result, list):
+        return jsonify({'projects': result}), 200
+    else:
+        return jsonify({'message': result}), 404
 
 # Route for creating a new project
 @app.route('/create_project', methods=['POST'])
@@ -215,4 +232,4 @@ def check_inventory():
 
 # Main entry point for the application
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True, port=3000)
