@@ -57,7 +57,7 @@ const UserManagement = () => {
         setCookie("userID", data.userId, { path: '/' });
         setShowNewUserPopup(false);
         alert("Sign up successful") //EDIT THIS LATER
-        // navigate("/projects");
+        navigate("/projects");
       } else {
         alert(`Sign-up failed: ${data.message}`);
       }
@@ -78,7 +78,7 @@ const UserManagement = () => {
       if (response.ok) {
         const data = await response.json();
         console.log("Project created:", data);
-        // Handle successful project creation (e.g., show a success message, navigate to project page)
+        // handle successful project creation (e.g., show a success message, navigate to project page)
       } else {
         alert("Failed to create project.");
       }
@@ -99,7 +99,7 @@ const UserManagement = () => {
       if (response.ok) {
         const data = await response.json();
         console.log("Joined project:", data);
-        // Handle successful project join (e.g., navigate to project page)
+        // handle successful project join (e.g., navigate to project page)
       } else {
         alert("Failed to join project.");
       }
