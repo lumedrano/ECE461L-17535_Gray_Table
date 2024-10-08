@@ -2,3 +2,4 @@
 medranovenv/
 kimberlyvenv/
 .env
+/node_modules
