@@ -1,7 +1,10 @@
+@import url('https://fonts.googleapis.com/css?family=Raleway');
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Raleway', sans-serif;
 }
 
 body {
@@ -10,18 +13,17 @@ body {
     align-items: center;
     height: 100vh;
     background: linear-gradient(45deg, #6e45e2, #88d3ce);
-    font-family: 'Arial', sans-serif;
 }
 
-.user-management-container {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 20px;
-    border-radius: 10px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    animation: fadeIn 1.5s ease-in-out;
-    width: 80%;
-}
+// .user-management-container {
+//     background: rgba(255, 255, 255, 0.1);
+//     padding: 20px;
+//     border-radius: 10px;
+//     backdrop-filter: blur(10px);
+//     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+//     animation: fadeIn 1.5s ease-in-out;
+//     width: 80%;
+// }
 
 h2 {
     color: #fff;
@@ -99,7 +101,7 @@ button:hover {
 }
 
 .popup {
-    display: none;
+    display: block;
 }
 
 @keyframes fadeIn {
