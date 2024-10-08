@@ -1,10 +1,10 @@
 import React from 'react';
-import logincomponents from './components/logincomponents/logincomponent'
+import Logincomponents from '../components/logincomponents/logincomponent';
 
 function Login(){
     return (
         <div className='page-container'>
-            <logincomponents />
+            <Logincomponents />
         </div>
     );
 }
