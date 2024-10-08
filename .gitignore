@@ -2,4 +2,4 @@
 medranovenv/
 kimberlyvenv/
 .env
-/node_modules
+src/client/node_modules/

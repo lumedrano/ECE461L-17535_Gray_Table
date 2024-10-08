@@ -2,6 +2,7 @@
 # Import necessary libraries and modules
 from bson.objectid import ObjectId
 from flask import Flask, request, jsonify, g
+from flask_cors import CORS
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 from dotenv import load_dotenv
@@ -19,6 +20,7 @@ import hardwareDB
 
 # Initialize a new Flask web application
 app = Flask(__name__)
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
 #load in environmental variables
 load_dotenv()
