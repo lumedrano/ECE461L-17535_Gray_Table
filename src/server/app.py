@@ -129,6 +129,10 @@ def get_user_projects_list():
 @app.route('/create_project', methods=['POST'])
 def create_project():
     # Extract data from request
+    data = request.json
+    projectName = data['projectName']
+    projectId = data['projectId']
+    description = data['description']
 
     # Connect to MongoDB
 
@@ -143,6 +147,8 @@ def create_project():
 @app.route('/get_project_info', methods=['POST'])
 def get_project_info():
     # Extract data from request
+    data = request.json
+
 
     # Connect to MongoDB
 
@@ -159,53 +165,66 @@ def get_all_hw_names():
     # Connect to MongoDB
 
     # Fetch all hardware names using the hardwareDB module
+    result = hardwareDB.getAllHwNames(g.db)
 
     # Close the MongoDB connection
 
     # Return a JSON response
-    return jsonify({})
+    return jsonify({'message': result}), 200
 
 # Route for getting hardware information
 @app.route('/get_hw_info', methods=['POST'])
 def get_hw_info():
     # Extract data from request
-
+    data = request.json
+    hwSetName = data['hwSetName']
     # Connect to MongoDB
 
     # Fetch hardware set information using the hardwareDB module
+    result = hardwareDB.queryHardwareSet(g.db, hwSetName)
 
     # Close the MongoDB connection
 
     # Return a JSON response
-    return jsonify({})
+    return jsonify({'message': result}), 200
 
 # Route for checking out hardware
 @app.route('/check_out', methods=['POST'])
 def check_out():
     # Extract data from request
-
+    data = request.json
+    projectId = data['projectId']
+    hwSetName = data['hwSetName']
+    amount = data['qty']
+    userId = data['userId']
     # Connect to MongoDB
 
     # Attempt to check out the hardware using the projectsDB module
+    result = projectsDB.checkOutHW(g.db, projectId, hwSetName, amount, userId)
 
     # Close the MongoDB connection
 
     # Return a JSON response
-    return jsonify({})
+    return jsonify({'message': result}), 200
 
 # Route for checking in hardware
 @app.route('/check_in', methods=['POST'])
 def check_in():
     # Extract data from request
+    data = request.json
+    projectId = data['projectId']
+    hwSetName = data['hwSetName']
+    amount = data['qty']
+    userId = data['userId']
 
     # Connect to MongoDB
 
     # Attempt to check in the hardware using the projectsDB module
-
+    result = projectsDB.checkInHW(g.db, projectId, hwSetName, amount, userId)
     # Close the MongoDB connection
 
     # Return a JSON response
-    return jsonify({})
+    return jsonify({'message': result}), 200
 
 # Route for creating a new hardware set
 @app.route('/create_hardware_set', methods=['POST'])
