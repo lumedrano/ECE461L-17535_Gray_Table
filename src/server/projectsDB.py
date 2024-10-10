@@ -81,13 +81,43 @@ def checkOutHW(db, projectId, hwSetName, qty, userId):
     # if project is None:
     #     return "project not found"
     # project['hwSets'].update([hwSetName])
+    collection = db['projectsDB']
+    project = collection.find_one({'projectId': projectId})
+    
+    if not project:
+        return "Project not found."
 
-    pass
+    current_qty = project['hwSets'].get(hwSetName, 0)
+    
+    if current_qty < qty:
+        return f"Not enough of {hwSetName} is available. Only {current_qty} is available."
+    
+    new_qty = current_qty - qty
+    collection.update_one(
+        {'projectId': projectId},
+        {'$set': {f'hwSets.{hwSetName}': new_qty}}
+    )
+    return f"{qty} of {hwSetName} checked out from project {projectId} by user {userId}."
+    #pass
 
 # Function to check in hardware for a project
 def checkInHW(client, projectId, hwSetName, qty, userId):
     # Check in hardware for the specified project and update availability
-    pass
+    collection = db['projectsDB']
+    project = collection.find_one({'projectId': projectId})
+    
+    if not project:
+        return f"Project {projectId} not found."
+
+    current_qty = project['hwSets'].get(hwSetName, 0)
+    new_qty = current_qty + qty
+
+    collection.update_one(
+        {'projectId': projectId},
+        {'$set': {f'hwSets.{hwSetName}': new_qty}}
+    )
+    return f"{qty} of {hwSetName} checked in to project {projectId} by user {userId}."
+    #pass
 
 # Testing
 # client = pymongo.MongoClient("mongodb://localhost:27017/")
