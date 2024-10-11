@@ -10,10 +10,6 @@ const UserManagement = () => {
   const [newUserId, setNewUserId] = useState("");
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [projectName, setProjectName] = useState("");
-  const [projectDescription, setProjectDescription] = useState("");
-  const [projectId, setProjectId] = useState("");
-  const [loginProjectId, setLoginProjectId] = useState("");
   const [showNewUserPopup, setShowNewUserPopup] = useState(false);
   const navigate = useNavigate();
   const [cookies, setCookie] = useCookies(['userID']);
@@ -33,7 +29,7 @@ const UserManagement = () => {
       if (response.ok) {
         setCookie("userID", data.userId, { path: '/' });
         alert("Sign in was a success!")
-        // navigate("/projects");
+        navigate("/projects");
       } else {
         alert(`Login failed: ${data.message}`);
       }
@@ -56,56 +52,14 @@ const UserManagement = () => {
       if (response.ok) {
         setCookie("userID", data.userId, { path: '/' });
         setShowNewUserPopup(false);
-        alert("Sign up successful") //EDIT THIS LATER
-        // navigate("/projects");
+        alert("Sign up successful")
+        navigate("/projects");
       } else {
         alert(`Sign-up failed: ${data.message}`);
       }
     } catch (error) {
       console.error("Error:", error);
       alert("An error occurred while trying to create a new user.");
-    }
-  };
-  
-  const handleCreateProject = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/create_project`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectName, projectDescription, projectId }),
-      });
-  
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Project created:", data);
-        // handle successful project creation (e.g., show a success message, navigate to project page)
-      } else {
-        alert("Failed to create project.");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Error: " + error);
-    }
-  };
-  
-  const handleLoginProject = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/join_project`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: cookies.userID, projectId: loginProjectId }),
-      });
-  
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Joined project:", data);
-        // handle successful project join (e.g., navigate to project page)
-      } else {
-        alert("Failed to join project.");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Error: " + error);
     }
   };
 
@@ -179,59 +133,6 @@ const UserManagement = () => {
             <button onClick={() => setShowNewUserPopup(false)}>Close</button>
           </div>
         )}
-        <div className="column project-management-area">
-          <h3>Create New Project</h3>
-          <div className="input-group">
-            <input
-              type="text"
-              required
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-            />
-            <label>Project Name</label>
-          </div>
-          <div className="input-group">
-            <input
-              type="text"
-              required
-              value={projectDescription}
-              onChange={(e) => setProjectDescription(e.target.value)}
-            />
-            <label>Project Description</label>
-          </div>
-          <div className="input-group">
-            <input
-              type="text"
-              required
-              value={projectId}
-              onChange={(e) => setProjectId(e.target.value)}
-            />
-            <label>Project ID</label>
-          </div>
-          <button onClick={handleCreateProject}>Create Project</button>
-        </div>
-      </div>
-      <div className="existing-projects-area">
-        <h3>Login to Existing Projects</h3>
-        <div className="input-group">
-          <input
-            type="text"
-            required
-            value={loginProjectId}
-            onChange={(e) => setLoginProjectId(e.target.value)}
-          />
-          <label>Project ID</label>
-        </div>
-        <div className="input-group">
-          <input
-            type="text"
-            required
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-          />
-          <label>User ID</label>
-        </div>
-        <button onClick={handleLoginProject}>Login</button>
       </div>
     </div>
   );  
