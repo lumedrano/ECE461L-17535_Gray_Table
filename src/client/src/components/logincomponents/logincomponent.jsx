@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
+import { useAuth } from "./Auth";
 import "./logincomponent.scss";
 
 const UserManagement = () => {
@@ -13,6 +14,8 @@ const UserManagement = () => {
   const [showNewUserPopup, setShowNewUserPopup] = useState(false);
   const navigate = useNavigate();
   const [cookies, setCookie] = useCookies(['userID']);
+  const { login } = useAuth();
+  
 
   const API_BASE_URL = process.env.APP_API_URL || 'http://127.0.0.1:5000';
 
@@ -28,6 +31,7 @@ const UserManagement = () => {
   
       if (response.ok) {
         setCookie("userID", data.userId, { path: '/' });
+        login(data.userId);
         alert("Sign in was a success!")
         navigate("/projects");
       } else {
@@ -51,6 +55,7 @@ const UserManagement = () => {
   
       if (response.ok) {
         setCookie("userID", data.userId, { path: '/' });
+        login(data.userId);
         setShowNewUserPopup(false);
         alert("Sign up successful")
         navigate("/projects");
