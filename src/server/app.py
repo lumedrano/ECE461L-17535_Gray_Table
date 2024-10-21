@@ -254,4 +254,5 @@ def check_inventory():
 
 # Main entry point for the application
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, ssl_context=None)  # Disable SSL for development
+
