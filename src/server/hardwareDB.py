@@ -27,7 +27,10 @@ def createHardwareSet(client, hwSetName, initCapacity):
 # Function to query a hardware set by its name
 def queryHardwareSet(client, hwSetName):
     # Query and return a hardware set from the database
-    query = collection.find_one({'hwName': hwSetName})
+    try:
+        return collection.find_one({'hwName': hwSetName})
+    except:
+        print("There is no hwSet under that name.")
 
 # Function to update the availability of a hardware set
 def updateAvailability(client, hwSetName, newAvailability):
@@ -38,12 +41,19 @@ def updateAvailability(client, hwSetName, newAvailability):
 # Function to request space from a hardware set
 def requestSpace(client, hwSetName, amount):
     # Request a certain amount of hardware and update availability
-    set = queryHardwareSet(client, hwSetName)
+    try:
+        set = queryHardwareSet(client, hwSetName)
+    except:
+        return
     if set['availability'] >= amount:
         collection.update_one(
             {'hwName': hwSetName},
             {'$inc': {'availability': - amount}}
         )
+        # Tie requested space to the user
+
+    else:
+        print("Not enough available space.\nRequested space: " + amount + "\nAvailable space: " + set['availability'])
 
 # Function to get all hardware set names
 def getAllHwNames(client):
@@ -51,3 +61,7 @@ def getAllHwNames(client):
     setNames = collection.find({}, {'hwName': 1, "_id": 0})
     list = [hw['hwName'] for hw in setNames]
     return list
+
+createHardwareSet(client, "hwTest1", 100)
+requestSpace(client, "hwTest1", 50)
+print(getAllHwNames(client))

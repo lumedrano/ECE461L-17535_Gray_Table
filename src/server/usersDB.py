@@ -116,7 +116,7 @@ def getUserProjectsList(db, userId):
 #     result = joinProject("1001", "project001")
 #     print(f"Join Project Result: {result}")
     
-#     # attempt to add the same user to the same project again
+# #     # attempt to add the same user to the same project again
 #     result = joinProject("1001", "project001")
 #     print(f"Join Project Again (should indicate already added): {result}")
 
