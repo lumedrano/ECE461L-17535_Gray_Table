@@ -28,7 +28,7 @@ load_dotenv()
 
 @app.before_request
 def before_request():
-    g.client = MongoClient(os.getenv('MONGODB_CONNECTION_STRING'), server_api=ServerApi('1'))
+    g.client = MongoClient(os.getenv('MONGODB_CONNECTION_STRING'), server_api=ServerApi('1'), tls=True, tlsAllowInvalidCertificates=True)
     g.db = g.client['ece461l_final_project']
 
 @app.teardown_request
@@ -134,14 +134,13 @@ def create_project():
     projectId = data['projectId']
     description = data['description']
 
-    # Connect to MongoDB
+    result = projectsDB.createProject(g.db, projectName, projectId, description)
 
-    # Attempt to create the project using the projectsDB module
+    if result == "project created successfully":
+        return jsonify({'message': result, 'projectId': projectId}), 201
+    else:
+        return jsonify({'message': result}), 400
 
-    # Close the MongoDB connection
-
-    # Return a JSON response
-    return jsonify({})
 
 # Route for getting project information
 @app.route('/get_project_info', methods=['POST'])
@@ -254,4 +253,5 @@ def check_inventory():
 
 # Main entry point for the application
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, ssl_context=None)  # Disable SSL for development
+
