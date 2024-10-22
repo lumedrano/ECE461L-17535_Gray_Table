@@ -87,7 +87,7 @@ def joinProject(db, userId, projectId):
         if result.modified_count > 0:
             return "Successfully added to project!"
         else:
-            return "Already added to project."
+            return "Successfully added to project!"
     except Exception as e:
         return f"An error occurred while joining project: {str(e)}"
 

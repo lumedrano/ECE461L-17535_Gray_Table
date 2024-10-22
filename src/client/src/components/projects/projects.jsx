@@ -19,13 +19,14 @@ const Projects = () => {
       const response = await fetch(`${API_BASE_URL}/create_project`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectName, projectDescription, projectId }),
+        body: JSON.stringify({ projectName : projectName, projectId: projectId, description: projectDescription}),
       });
   
       if (response.ok) {
         const data = await response.json();
         console.log("Project created:", data);
         alert("Project created successfully!");
+        navigate("/hardware");
       } else {
         alert("Failed to create project.");
       }
@@ -47,6 +48,7 @@ const Projects = () => {
         const data = await response.json();
         console.log("Joined project:", data);
         alert("Successfully joined the project!");
+        navigate("/hardware");
       } else {
         alert("Failed to join project.");
       }

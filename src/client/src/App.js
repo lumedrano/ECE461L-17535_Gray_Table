@@ -5,6 +5,8 @@ import Login from './pages/Login';
 import Home from './pages/Home';
 import { AuthProvider } from './components/logincomponents/Auth';
 import PrivateRoute from './components/logincomponents/PrivateRoute';
+import Hardware from './pages/Hardware';  // Adjust path if needed
+
 
 function App() {
   return (
@@ -16,6 +18,7 @@ function App() {
           <Route path="/login" element={<Login/>}></Route>
           <Route element={<PrivateRoute />}>
             <Route path="/projects" element={<Home />} />
+            <Route path="/hardware" element={<Hardware />} /> 
           </Route>
         </Routes>
       </Router>
