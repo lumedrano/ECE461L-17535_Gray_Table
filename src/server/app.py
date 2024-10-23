@@ -152,6 +152,7 @@ def get_project_info():
     # Connect to MongoDB
 
     # Fetch project information using the projectsDB module
+    #TODO: fetch using user's information
 
     # Close the MongoDB connection
 
