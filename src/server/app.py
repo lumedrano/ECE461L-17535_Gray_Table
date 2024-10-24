@@ -252,14 +252,17 @@ def create_hardware_set():
 # Route for checking the inventory of projects
 @app.route('/api/inventory', methods=['GET'])
 def check_inventory():
+    data = request.json
     # Connect to MongoDB
 
     # Fetch all projects from the HardwareCheckout.Projects collection
+    collection = g.db['HardwareCheckout']
+    projects = collection['Projects']
 
     # Close the MongoDB connection
 
     # Return a JSON response
-    return jsonify({})
+    return jsonify({projects}), 200
 
 # Main entry point for the application
 if __name__ == '__main__':
