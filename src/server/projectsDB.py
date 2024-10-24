@@ -26,7 +26,11 @@ Project = {
 def queryProject(db, projectId):
     # Query and return a project from the database
     collection = db['projectsDB']
-    return collection.find_one({'projectId': projectId})
+    try:
+        return collection.find_one({'projectId': projectId})
+    except Exception as e:
+        print(f"An error occurred while querying project: {str(e)}")
+        return None
     # pass
 
 # Function to create a new project
@@ -42,9 +46,9 @@ def createProject(db, projectName, projectId, description):
             'hwSets': {},
             'users': []
         }
-        print("project created")
+        # print("project created")
         collection.insert_one(new_project)
-        print("project inserted")
+        # print("project inserted")
         return "project created successfully"
     except Exception as e:
         return "project creation error: " + str(e)
@@ -101,7 +105,7 @@ def checkOutHW(db, projectId, hwSetName, qty, userId):
     #pass
 
 # Function to check in hardware for a project
-def checkInHW(client, projectId, hwSetName, qty, userId):
+def checkInHW(db, projectId, hwSetName, qty, userId):
     # Check in hardware for the specified project and update availability
     collection = db['projectsDB']
     project = collection.find_one({'projectId': projectId})
@@ -118,6 +122,7 @@ def checkInHW(client, projectId, hwSetName, qty, userId):
     )
     return f"{qty} of {hwSetName} checked in to project {projectId} by user {userId}."
     #pass
+# Function to get project information
 
 # Testing
 # client = pymongo.MongoClient("mongodb://localhost:27017/")

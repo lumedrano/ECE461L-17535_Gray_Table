@@ -147,17 +147,22 @@ def create_project():
 def get_project_info():
     # Extract data from request
     data = request.json
+    projectId = data['projectId']
 
 
     # Connect to MongoDB
 
     # Fetch project information using the projectsDB module
     #TODO: fetch using user's information
-
+    result = projectsDB.queryProject(g.db, projectId)
     # Close the MongoDB connection
 
     # Return a JSON response
-    return jsonify({})
+
+    if result == None:
+        return jsonify({'message: Project Query Error'}), 404
+    else:
+        return jsonify({'project info:', result}), 200
 
 # Route for getting all hardware names
 @app.route('/get_all_hw_names', methods=['POST'])
@@ -166,7 +171,6 @@ def get_all_hw_names():
 
     # Fetch all hardware names using the hardwareDB module
     result = hardwareDB.getAllHwNames(g.db)
-
     # Close the MongoDB connection
 
     # Return a JSON response
@@ -230,27 +234,35 @@ def check_in():
 @app.route('/create_hardware_set', methods=['POST'])
 def create_hardware_set():
     # Extract data from request
-
+    data = request.json
+    hwSetName = data['hwSetName']
+    initCapacity = data['initCapacity']
     # Connect to MongoDB
 
     # Attempt to create the hardware set using the hardwareDB module
-
+    result = hardwareDB.createHardwareSet(g.db, hwSetName, initCapacity)
     # Close the MongoDB connection
 
     # Return a JSON response
-    return jsonify({})
+    if result == "Hardware Set Created Successfully":
+        return jsonify({'message:', result}), 200
+    else:
+        return jsonify({'message:', result}), 400
 
 # Route for checking the inventory of projects
 @app.route('/api/inventory', methods=['GET'])
 def check_inventory():
+    data = request.json
     # Connect to MongoDB
 
     # Fetch all projects from the HardwareCheckout.Projects collection
+    collection = g.db['HardwareCheckout']
+    projects = collection['Projects']
 
     # Close the MongoDB connection
 
     # Return a JSON response
-    return jsonify({})
+    return jsonify({projects}), 200
 
 # Main entry point for the application
 if __name__ == '__main__':
