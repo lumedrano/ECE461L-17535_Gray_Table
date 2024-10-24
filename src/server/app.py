@@ -147,13 +147,14 @@ def create_project():
 def get_project_info():
     # Extract data from request
     data = request.json
+    projectId = data['projectId']
 
 
     # Connect to MongoDB
 
     # Fetch project information using the projectsDB module
     #TODO: fetch using user's information
-
+    result = projectsDB.queryProject(g.db, projectId)
     # Close the MongoDB connection
 
     # Return a JSON response
