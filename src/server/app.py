@@ -160,9 +160,9 @@ def get_project_info():
     # Return a JSON response
 
     if result == None:
-        return jsonify({'message: Project Query Error'})
+        return jsonify({'message: Project Query Error'}), 404
     else:
-        return jsonify({'project:', result})
+        return jsonify({'project info:', result}), 200
 
 # Route for getting all hardware names
 @app.route('/get_all_hw_names', methods=['POST'])
