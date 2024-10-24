@@ -171,7 +171,6 @@ def get_all_hw_names():
 
     # Fetch all hardware names using the hardwareDB module
     result = hardwareDB.getAllHwNames(g.db)
-
     # Close the MongoDB connection
 
     # Return a JSON response
@@ -235,15 +234,20 @@ def check_in():
 @app.route('/create_hardware_set', methods=['POST'])
 def create_hardware_set():
     # Extract data from request
-
+    data = request.json
+    hwSetName = data['hwSetName']
+    initCapacity = data['initCapacity']
     # Connect to MongoDB
 
     # Attempt to create the hardware set using the hardwareDB module
-
+    result = hardwareDB.createHardwareSet(g.db, hwSetName, initCapacity)
     # Close the MongoDB connection
 
     # Return a JSON response
-    return jsonify({})
+    if result == "Hardware Set Created Successfully":
+        return jsonify({'message:', result}), 200
+    else:
+        return jsonify({'message:', result}), 400
 
 # Route for checking the inventory of projects
 @app.route('/api/inventory', methods=['GET'])

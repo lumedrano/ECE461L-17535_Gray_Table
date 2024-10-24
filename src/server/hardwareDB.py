@@ -17,13 +17,18 @@ HardwareSet = {
 # Function to create a new hardware set
 def createHardwareSet(db, hwSetName, initCapacity):
     # Create a new hardware set in the database
-    collection = db['hwSetName']
-    HardwareSet = {
-        'hwName': hwSetName,
-        'capacity': initCapacity,
-        'availability': initCapacity
-    }
-    collection.insert_one(HardwareSet)
+    try:
+        collection = db['hwSetName']
+        HardwareSet = {
+            'hwName': hwSetName,
+            'capacity': initCapacity,
+            'availability': initCapacity
+        }
+        collection.insert_one(HardwareSet)
+        return "Hardware Set Created Successfully"
+    except Exception as e:
+        return "Hardware Set Creation Error" + str(e)
+
 
 # Function to query a hardware set by its name
 def queryHardwareSet(db, hwSetName):

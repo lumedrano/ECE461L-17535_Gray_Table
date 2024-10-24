@@ -46,9 +46,9 @@ def createProject(db, projectName, projectId, description):
             'hwSets': {},
             'users': []
         }
-        print("project created")
+        # print("project created")
         collection.insert_one(new_project)
-        print("project inserted")
+        # print("project inserted")
         return "project created successfully"
     except Exception as e:
         return "project creation error: " + str(e)
