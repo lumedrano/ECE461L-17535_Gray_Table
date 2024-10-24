@@ -158,7 +158,11 @@ def get_project_info():
     # Close the MongoDB connection
 
     # Return a JSON response
-    return jsonify({})
+
+    if result == None:
+        return jsonify({'message: Project Query Error'})
+    else:
+        return jsonify({'project:', result})
 
 # Route for getting all hardware names
 @app.route('/get_all_hw_names', methods=['POST'])
