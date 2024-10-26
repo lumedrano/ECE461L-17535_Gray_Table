@@ -34,25 +34,54 @@ def queryProject(db, projectId):
     # pass
 
 # Function to create a new project
-def createProject(db, projectName, projectId, description):
-    # Create a new project in the database
+def createProject(db, projectName, projectId, description, userId):
+    """
+    Create a new project and automatically add the creating user.
+    
+    Args:
+        db: MongoDB database instance
+        projectName: Name of the project
+        projectId: Unique identifier for the project
+        description: Project description
+        userId: ID of the user creating the project
+    
+    Returns:
+        str: Status message indicating success or failure
+    """
     try:
-        collection = db['projectsDB']
-        print("collection created")
+        projects_collection = db['projectsDB']
+        users_collection = db['usersDB']
+        
+        # checking if project already exists
+        if projects_collection.find_one({'projectId': projectId}):
+            return "Error: Project with this ID already exists"
+        
+        #check if user exists
+        user = users_collection.find_one({'userId': userId})
+        if not user:
+            return "Error: User not found"
+            
+        #create the document
         new_project = {
             'projectName': projectName,
             'projectId': projectId,
             'description': description,
             'hwSets': {},
-            'users': []
+            'users': [userId]  # Add creating user to the project
         }
-        # print("project created")
-        collection.insert_one(new_project)
-        # print("project inserted")
-        return "project created successfully"
+        
+        projects_collection.insert_one(new_project)
+        
+        #add project to user's profile in usersDB
+        users_collection.update_one(
+            {'userId': userId},
+            {'$push': {'projects': projectId}}
+        )
+        
+        return "Project created successfully and added to user's profile"
+        
     except Exception as e:
-        return "project creation error: " + str(e)
-    # pass
+        return f"Project creation error: {str(e)}"
 
 # Function to add a user to a project
 def addUser(db, projectId, userId):

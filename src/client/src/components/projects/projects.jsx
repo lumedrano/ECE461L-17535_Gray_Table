@@ -19,7 +19,12 @@ const Projects = () => {
       const response = await fetch(`${API_BASE_URL}/create_project`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectName : projectName, projectId: projectId, description: projectDescription}),
+        body: JSON.stringify({ 
+          projectName: projectName, 
+          projectId: projectId, 
+          description: projectDescription,
+          userID: cookies.userID 
+        }),
       });
   
       if (response.ok) {
@@ -28,7 +33,8 @@ const Projects = () => {
         alert("Project created successfully!");
         navigate("/hardware");
       } else {
-        alert("Failed to create project.");
+        const errorData = await response.json();
+        alert(`Failed to create project: ${errorData.message}`);
       }
     } catch (error) {
       console.error("Error:", error);

@@ -125,21 +125,44 @@ def get_user_projects_list():
     else:
         return jsonify({'message': result}), 404
 
-# Route for creating a new project
+# Route for creating a new project@app.route('/create_project', methods=['POST'])
+##TODO: check this and see why i get a failed response and it still works
 @app.route('/create_project', methods=['POST'])
 def create_project():
-    # Extract data from request
-    data = request.json
-    projectName = data['projectName']
-    projectId = data['projectId']
-    description = data['description']
+    try:
+        print("Received request data:", request.json)  # Debug log
+        data = request.json
+        
+        # Validate required fields
+        required_fields = ['projectName', 'projectId', 'description', 'userID']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'message': f'Missing required field: {field}'}), 400
+                
+        projectName = data['projectName']
+        projectId = data['projectId']
+        description = data['description']
+        userID = data['userID']
 
-    result = projectsDB.createProject(g.db, projectName, projectId, description)
+        # Debug log
+        print(f"Processing project creation: {projectName}, {projectId}, {userID}")
 
-    if result == "project created successfully":
-        return jsonify({'message': result, 'projectId': projectId}), 201
-    else:
-        return jsonify({'message': result}), 400
+        result = projectsDB.createProject(g.db, projectName, projectId, description, userID)
+
+        print("Creation result:", result)  # Debug log
+
+        if result == "project created successfully":
+            return jsonify({
+                'message': result, 
+                'projectId': projectId,
+                'projectName': projectName
+            }), 201
+        else:
+            return jsonify({'message': result}), 400
+            
+    except Exception as e:
+        print("Error in create_project:", str(e))  # Debug log
+        return jsonify({'message': f'Server error: {str(e)}'}), 500
 
 
 # Route for getting project information
