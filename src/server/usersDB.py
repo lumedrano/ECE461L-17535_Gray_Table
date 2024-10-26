@@ -71,24 +71,58 @@ def login(db, username, userId, password):
 
 # Function to add a user to a project
 def joinProject(db, userId, projectId):
-    collection = db['usersDB']
+    users_collection = db['usersDB']
+    projects_collection = db['projectsDB']
+    
+    #convert to strings for comparing
+    #TODO: when further implementing, check if we need to keep IDs in integer or if they can be mix type
+    userId = str(userId)
+    projectId = str(projectId)
+    
     if not userId or not projectId:
         return "userId and projectId are required."
+    
     try:
-        # Add a user to a specified project
-        if not collection.find_one({'userId': userId}):
+        # First verify user exists with string userId
+        user = users_collection.find_one({'userId': userId})
+        if not user:
+            print(f"User not found with userId: {userId}")
             return "User not found"
+            
+        # Check if project exists
+        project = projects_collection.find_one({'projectId': projectId})
+        if not project:
+            return "Project not found"
+            
+        # Check if user is already in project's users list
+        if 'users' in project and userId in project['users']:
+            return "User is already a member of this project"
         
-        result = collection.update_one(
-            {'userId': userId},
-            {'$addToSet': {'projects': projectId}}
+        # Update project's users list
+        project_result = projects_collection.update_one(
+            {'projectId': projectId},
+            {'$push': {'users': userId}}
         )
-
-        if result.modified_count > 0:
-            return "Successfully added to project!"
+        
+        # Update user's projects list
+        user_result = users_collection.update_one(
+            {'userId': userId},
+            {'$push': {'projects': projectId}}
+        )
+        
+        if project_result.modified_count > 0 and user_result.modified_count > 0:
+            return "Successfully joined project!"
         else:
-            return "Successfully added to project!"
+            # Rollback project update if user update failed
+            if project_result.modified_count > 0 and user_result.modified_count == 0:
+                projects_collection.update_one(
+                    {'projectId': projectId},
+                    {'$pull': {'users': userId}}
+                )
+            return "Failed to update user record"
+            
     except Exception as e:
+        print(f"Exception details: {str(e)}")
         return f"An error occurred while joining project: {str(e)}"
 
 # Function to get the list of projects for a user
@@ -97,10 +131,10 @@ def getUserProjectsList(db, userId):
     if not userId:
         return "userId is required."
     try:
-        # Get and return the list of projects a user is part of
+        # get and return the list of projects a user is part of
         user = collection.find_one({'userId': userId})
         
-        # If found, use .get to obtain projects
+        # if found, use .get to obtain projects
         if user:
             return user.get('projects', [])
         else:

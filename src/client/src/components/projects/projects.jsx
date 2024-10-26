@@ -19,7 +19,12 @@ const Projects = () => {
       const response = await fetch(`${API_BASE_URL}/create_project`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectName : projectName, projectId: projectId, description: projectDescription}),
+        body: JSON.stringify({ 
+          projectName: projectName, 
+          projectId: projectId, 
+          description: projectDescription,
+          userID: cookies.userID 
+        }),
       });
   
       if (response.ok) {
@@ -28,7 +33,8 @@ const Projects = () => {
         alert("Project created successfully!");
         navigate("/hardware");
       } else {
-        alert("Failed to create project.");
+        const errorData = await response.json();
+        alert(`Failed to create project: ${errorData.message}`);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -44,17 +50,24 @@ const Projects = () => {
         body: JSON.stringify({ userId: cookies.userID, projectId: loginProjectId }),
       });
   
+      const data = await response.json();
+      
       if (response.ok) {
-        const data = await response.json();
         console.log("Joined project:", data);
         alert("Successfully joined the project!");
         navigate("/hardware");
+      } else if (response.status === 404) {
+        alert("Project not found. Please check the project ID.");
+      } else if (response.status === 409) {
+        alert("You are already a member of this project.");
+      } else if (response.status === 500) {
+        alert("Server error occurred. Please try again later.");
       } else {
-        alert("Failed to join project.");
+        alert(data.message || "Failed to join project.");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Error: " + error);
+      alert("Network error occurred. Please check your connection.");
     }
   };
 

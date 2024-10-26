@@ -13,10 +13,6 @@ import usersDB
 import projectsDB
 import hardwareDB
 
-# Define the MongoDB connection string
-# MONGODB_SERVER = "your_mongodb_connection_string_here"
-
-#TODO; look into if I should use if statements on here with status codes 200, 201, 404, etc.
 
 # Initialize a new Flask web application
 app = Flask(__name__)
@@ -84,12 +80,17 @@ def join_project():
 
     result = usersDB.joinProject(g.db, userId, projectId)
 
-    if result == "Successfully added to project!":
+    #mapping all responses back to front end
+    if result == "Successfully joined project!":
         return jsonify({'message': result}), 200
-    elif result == "User not found":
+    elif result == "Project not found":
         return jsonify({'message': result}), 404
+    elif result == "User is already a member of this project" or result == "No changes needed - user already in project":
+        return jsonify({'message': result}), 409  # conflict status code
+    elif result.startswith("An error occurred"):
+        return jsonify({'message': result}), 500  # server-side error
     else:
-        return jsonify({'message': result}), 400
+        return jsonify({'message': result}), 400 
 
 # Route for adding a new user
 @app.route('/add_user', methods=['POST'])
@@ -110,6 +111,7 @@ def add_user():
         return jsonify({'message': result}), 400
 
 # Route for getting the list of user projects
+#TODO: maybe upon successful login of user, call this function to populate the projects page with user's project information.
 @app.route('/get_user_projects_list', methods=['POST'])
 def get_user_projects_list():
     data = request.json
@@ -125,21 +127,45 @@ def get_user_projects_list():
     else:
         return jsonify({'message': result}), 404
 
-# Route for creating a new project
+
+
+
+
+
+
+#Project handlers Below
+
+# Route for creating a new project@app.route('/create_project', methods=['POST'])
 @app.route('/create_project', methods=['POST'])
 def create_project():
-    # Extract data from request
-    data = request.json
-    projectName = data['projectName']
-    projectId = data['projectId']
-    description = data['description']
+    try:
+        data = request.json
+        
+        # validate required fields
+        required_fields = ['projectName', 'projectId', 'description', 'userID']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'message': f'Missing required field: {field}'}), 400
+                
+        projectName = data['projectName']
+        projectId = data['projectId']
+        description = data['description']
+        userID = data['userID']
 
-    result = projectsDB.createProject(g.db, projectName, projectId, description)
+        result = projectsDB.createProject(g.db, projectName, projectId, description, userID)
 
-    if result == "project created successfully":
-        return jsonify({'message': result, 'projectId': projectId}), 201
-    else:
-        return jsonify({'message': result}), 400
+        if result == "Project created successfully":
+            return jsonify({
+                'message': result, 
+                'projectId': projectId,
+                'projectName': projectName
+            }), 201
+        else:
+            return jsonify({'message': result}), 400
+            
+    except Exception as e:
+        return jsonify({'message': f'Server error: {str(e)}'}), 500
+
 
 
 # Route for getting project information
@@ -163,35 +189,7 @@ def get_project_info():
         return jsonify({'message: Project Query Error'}), 404
     else:
         return jsonify({'project info:', result}), 200
-
-# Route for getting all hardware names
-@app.route('/get_all_hw_names', methods=['POST'])
-def get_all_hw_names():
-    # Connect to MongoDB
-
-    # Fetch all hardware names using the hardwareDB module
-    result = hardwareDB.getAllHwNames(g.db)
-    # Close the MongoDB connection
-
-    # Return a JSON response
-    return jsonify({'message': result}), 200
-
-# Route for getting hardware information
-@app.route('/get_hw_info', methods=['POST'])
-def get_hw_info():
-    # Extract data from request
-    data = request.json
-    hwSetName = data['hwSetName']
-    # Connect to MongoDB
-
-    # Fetch hardware set information using the hardwareDB module
-    result = hardwareDB.queryHardwareSet(g.db, hwSetName)
-
-    # Close the MongoDB connection
-
-    # Return a JSON response
-    return jsonify({'message': result}), 200
-
+    
 # Route for checking out hardware
 @app.route('/check_out', methods=['POST'])
 def check_out():
@@ -229,6 +227,42 @@ def check_in():
 
     # Return a JSON response
     return jsonify({'message': result}), 200
+
+
+
+
+
+#HardwareSet handlers Below
+
+
+# Route for getting all hardware names
+@app.route('/get_all_hw_names', methods=['POST'])
+def get_all_hw_names():
+    # Connect to MongoDB
+
+    # Fetch all hardware names using the hardwareDB module
+    result = hardwareDB.getAllHwNames(g.db)
+    # Close the MongoDB connection
+
+    # Return a JSON response
+    return jsonify({'message': result}), 200
+
+# Route for getting hardware information
+@app.route('/get_hw_info', methods=['POST'])
+def get_hw_info():
+    # Extract data from request
+    data = request.json
+    hwSetName = data['hwSetName']
+    # Connect to MongoDB
+
+    # Fetch hardware set information using the hardwareDB module
+    result = hardwareDB.queryHardwareSet(g.db, hwSetName)
+
+    # Close the MongoDB connection
+
+    # Return a JSON response
+    return jsonify({'message': result}), 200
+
 
 # Route for creating a new hardware set
 @app.route('/create_hardware_set', methods=['POST'])
