@@ -35,19 +35,10 @@ def queryProject(db, projectId):
 
 # Function to create a new project
 def createProject(db, projectName, projectId, description, userId):
-    """
-    Create a new project and automatically add the creating user.
     
-    Args:
-        db: MongoDB database instance
-        projectName: Name of the project
-        projectId: Unique identifier for the project
-        description: Project description
-        userId: ID of the user creating the project
-    
-    Returns:
-        str: Status message indicating success or failure
-    """
+    #TODO: when further implementing, check if we need to keep IDs in integer or if they can be mix type
+    projectId = str(projectId)
+    userId = str(userId)
     try:
         projects_collection = db['projectsDB']
         users_collection = db['usersDB']
@@ -78,7 +69,7 @@ def createProject(db, projectName, projectId, description, userId):
             {'$push': {'projects': projectId}}
         )
         
-        return "Project created successfully and added to user's profile"
+        return "Project created successfully"
         
     except Exception as e:
         return f"Project creation error: {str(e)}"

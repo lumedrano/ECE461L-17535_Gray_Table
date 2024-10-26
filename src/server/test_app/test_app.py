@@ -9,9 +9,9 @@ class FlaskAppTestCase(unittest.TestCase):
         self.app = app.test_client()
         self.app.testing = True
 
-    def test_add_user(self):
-        # Mock the database interaction
 
+    #test case works
+    def test_add_user(self):
         # Define test data
         test_data = {
             'username': 'testuser',
@@ -26,6 +26,7 @@ class FlaskAppTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json['message'], 'User added successfully.')
 
+    #test case works
     def test_login(self):
         # Define test data
         test_data = {
@@ -40,6 +41,20 @@ class FlaskAppTestCase(unittest.TestCase):
         # Verify response data and status code
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json['message'], 'Login Successful!')
+
+    
+
+    #test works, does not have an assertion
+    def test_get_user_projects_list(self):
+        # Test case 1: Successful projects retrieval
+        test_data = {
+            'userId': 'test'
+        }
+        response = self.app.post('/get_user_projects_list', 
+                               data=json.dumps(test_data), 
+                               content_type='application/json')
+        
+        print(response.data)
 
 if __name__ == '__main__':
     unittest.main()
