@@ -57,8 +57,7 @@ const UserManagement = () => {
         setCookie("userID", data.userId, { path: '/' });
         login(data.userId);
         setShowNewUserPopup(false);
-        alert("Sign up successful")
-        navigate("/projects");
+        alert("Sign up successful! You can now log in.");
       } else {
         alert(`Sign-up failed: ${data.message}`);
       }
