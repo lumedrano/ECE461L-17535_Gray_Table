@@ -92,6 +92,31 @@ def join_project():
     else:
         return jsonify({'message': result}), 400 
 
+# Route for removing a user from a project using projectId
+@app.route('/leave_project', methods=['POST'])
+def leave_project():
+    data = request.json
+    userId = data.get('userId')
+    projectId = data.get('projectId')
+
+    if not all([userId, projectId]):
+        return jsonify({'message': 'userId and projectId are required.'}), 400
+
+    result = usersDB.leaveProject(g.db, userId, projectId)
+
+    # Mapping responses back to the frontend
+    if result == "Successfully left the project":
+        return jsonify({'message': result}), 200
+    elif result == "Project not found":
+        return jsonify({'message': result}), 404
+    elif result == "User is not a member of this project":
+        return jsonify({'message': result}), 409  # conflict status code
+    elif result.startswith("An error occurred"):
+        return jsonify({'message': result}), 500  # server-side error
+    else:
+        return jsonify({'message': result}), 400
+
+
 # Route for adding a new user
 @app.route('/add_user', methods=['POST'])
 def add_user():
