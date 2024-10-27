@@ -124,6 +124,54 @@ def joinProject(db, userId, projectId):
     except Exception as e:
         print(f"Exception details: {str(e)}")
         return f"An error occurred while joining project: {str(e)}"
+    
+#Function to remove a user from a project
+def leaveProject(db, userId, projectId):
+    # Assuming userId is verified and the user is authenticated
+    users_collection = db['usersDB']
+    projects_collection = db['projectsDB']
+    
+    # Convert IDs to strings
+    userId = str(userId)
+    projectId = str(projectId)
+    
+    try:
+        # verify project exists
+        project = projects_collection.find_one({'projectId': projectId})
+        if not project:
+            return "Project not found"
+        
+        # check if user is actually in the project's users list
+        if 'users' not in project or userId not in project['users']:
+            return "User is not a member of this project"
+        
+        # remove user from project's users list
+        project_result = projects_collection.update_one(
+            {'projectId': projectId},
+            {'$pull': {'users': userId}}
+        )
+        
+        # remove project from user's projects list
+        user_result = users_collection.update_one(
+            {'userId': userId},
+            {'$pull': {'projects': projectId}}
+        )
+        
+        if project_result.modified_count > 0 and user_result.modified_count > 0:
+            return "Successfully left the project"
+        else:
+            # rollback project update if user update fails
+            if project_result.modified_count > 0 and user_result.modified_count == 0:
+                projects_collection.update_one(
+                    {'projectId': projectId},
+                    {'$push': {'users': userId}}
+                )
+            return "Failed to update user record"
+            
+    except Exception as e:
+        print(f"Exception details: {str(e)}")
+        return f"An error occurred while leaving the project: {str(e)}"
+
 
 # Function to get the list of projects for a user
 def getUserProjectsList(db, userId):

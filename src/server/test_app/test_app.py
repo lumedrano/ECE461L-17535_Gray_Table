@@ -56,5 +56,17 @@ class FlaskAppTestCase(unittest.TestCase):
         
         print(response.data)
 
+    #test works, does not have assertion
+    def test_leave_project(self):
+        test_data = {
+            'userId': 'test',
+            'projectId': '001'
+        }
+        response = self.app.post('/leave_project', 
+                               data=json.dumps(test_data), 
+                               content_type='application/json')
+        
+        print(response.data)
+
 if __name__ == '__main__':
     unittest.main()
