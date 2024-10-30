@@ -8,7 +8,7 @@ const Projects = () => {
   const [projectDescription, setProjectDescription] = useState("");
   const [projectId, setProjectId] = useState("");
   const [loginProjectId, setLoginProjectId] = useState("");
-  const [joinedProjects, setJoinedProjects] = useState(null); // New flag
+  const [joinedProjects, setJoinedProjects] = useState(null); 
   const [cookies, removeCookie] = useCookies(['userID']);
   const navigate = useNavigate();
 
