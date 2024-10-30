@@ -176,6 +176,9 @@ def create_project():
         projectId = data['projectId']
         description = data['description']
         userID = data['userID']
+        
+        if not all([projectName, projectId, description, userID]):
+            return jsonify({'message': 'Fill out all fields.'}), 400
 
         result = projectsDB.createProject(g.db, projectName, projectId, description, userID)
 
