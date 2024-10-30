@@ -184,6 +184,7 @@ def getUserProjectsList(db, userId):
         
         # if found, use .get to obtain projects
         if user:
+            print(user.get('projects', []))
             return user.get('projects', [])
         else:
             return "User not found"

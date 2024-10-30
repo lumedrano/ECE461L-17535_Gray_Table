@@ -8,6 +8,7 @@ const Projects = () => {
   const [projectDescription, setProjectDescription] = useState("");
   const [projectId, setProjectId] = useState("");
   const [loginProjectId, setLoginProjectId] = useState("");
+  const [joinedProjects, setJoinedProjects] = useState(null); // New flag
   const [cookies, removeCookie] = useCookies(['userID']);
   const navigate = useNavigate();
 
@@ -60,6 +61,7 @@ const Projects = () => {
         alert("Project not found. Please check the project ID.");
       } else if (response.status === 409) {
         alert("You are already a member of this project.");
+        navigate("/hardware");
       } else if (response.status === 500) {
         alert("Server error occurred. Please try again later.");
       } else {
@@ -75,6 +77,30 @@ const Projects = () => {
     if (window.confirm("Are you sure you want to log out?")) {
       removeCookie('userID', { path: '/' });
       navigate('/');
+    }
+  };
+  const fetchJoinedProjects = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/get_user_projects_list`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: cookies.userID }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        //setJoinedProjects(data.projects);
+        setJoinedProjects(data.projects.length > 0 ? data.projects : []);
+      } else {
+        const errorData = await response.json();
+        console.error("Error fetching projects:", errorData.message);
+        setJoinedProjects([]);
+      }
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+      setJoinedProjects([]);
     }
   };
 
@@ -118,7 +144,7 @@ const Projects = () => {
         </div>
       </div>
       <div className="existing-projects-area">
-        <h3>Join Existing Project</h3>
+        <h3>Use Existing Project</h3>
         <div className="input-group">
           <input
             type="text"
@@ -129,6 +155,23 @@ const Projects = () => {
           <label>Project ID</label>
         </div>
         <button onClick={handleLoginProject}>Join Project</button>
+        <div className="joined-projects-area">
+        <h3>Your Joined Projects</h3>
+        <button onClick={fetchJoinedProjects}>Load Joined Projects</button>
+        {joinedProjects !== null && (
+          joinedProjects.length > 0 ? (
+            <div className="project-list">
+              {joinedProjects.map((projectId) => (
+                <div key={projectId} className="project-item">
+                  <p>Project ID: {projectId}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p>You have not joined any projects yet.</p>
+          )
+        )}
+      </div>
       </div>
     </div>
   );  
