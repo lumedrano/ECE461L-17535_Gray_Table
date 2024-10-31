@@ -1,14 +1,6 @@
 #Kimberly & Luigi
-
-#using MongoDB through python
-from database import get_database
-from pymongo import MongoClient
-from dotenv import load_dotenv
-import os
 import cipher
 
-
-#for reference
 '''
 Structure of User entry:
 User = {
@@ -19,27 +11,12 @@ User = {
 }
 '''
 
-# Global variables for client and collection
-client = None
-collection = None
-
-def get_collection():
-    global client, collection
-    if collection is None:
-        client = get_database()
-        if client is not None:
-            db = client['ece461l_final_project']
-            collection = db['usersDB']
-        else:
-            raise Exception("Failed to connect to the database")
-    return collection
-
 # Function to add a new user
-def addUser(username, userId, password):
+def addUser(db, username, userId, password):
+    collection = db['usersDB']
     if not username or not userId or not password:
         return "Username, userId, and password are required."
     try:
-        collection = get_collection()
         # Add a new user to the database
         if collection.find_one({'username': username, 'userId': userId}):
             return "User already exists."
@@ -53,16 +30,16 @@ def addUser(username, userId, password):
         
         result = collection.insert_one(new_user)
         if result.acknowledged:
-            return "User was added successfully."
+            return "User added successfully."
         else:
             return "Failed to add user."
     except Exception as e:
         return f"An error occurred: {str(e)}"
 
 # Helper function to query a user by username and userId
-def __queryUser(username, userId):
+def __queryUser(db, username, userId):
+    collection = db['usersDB']
     try:
-        collection = get_collection()
         # Query and return a user from the database
         return collection.find_one({'username': username, 'userId': userId})
     except Exception as e:
@@ -70,67 +47,150 @@ def __queryUser(username, userId):
         return None
 
 # Function to log in a user
-def login(username, userId, password):
+def login(db, username, userId, password):
+    collection = db['usersDB']
     if not username or not userId or not password:
         return "Username, userId, and password are required."
     try:
-        #find person using query function from above
-        user = __queryUser(username, userId)
-        #check if user is found, if so then use decrypt function on password by passing password in
+        # Find person using query function from above
+        user = __queryUser(db, username, userId)
+        # Check if user is found, if so then use decrypt function on password by passing password in
         if user:
             encrypted_pw = user['password']
             decrypted_pw = cipher.decrypt(encrypted_pw, 3, 1)
             
-            #if match then return something that they are logged in
+            # If match, return success message
             if decrypted_pw == password:
                 return "Login Successful!"
-            #if not, return error message saying invalid 
+            # If not, return error message
             return "Invalid password."
-        #if user was not found by username/id then return user not found
+        # If user was not found by username/id, return user not found
         return "User not found."
     except Exception as e:
         return f"An error occurred during login: {str(e)}"
 
 # Function to add a user to a project
-def joinProject(userId, projectId):
+def joinProject(db, userId, projectId):
+    users_collection = db['usersDB']
+    projects_collection = db['projectsDB']
+    
+    #convert to strings for comparing
+    #TODO: when further implementing, check if we need to keep IDs in integer or if they can be mix type
+    userId = str(userId)
+    projectId = str(projectId)
+    
     if not userId or not projectId:
         return "userId and projectId are required."
+    
     try:
-        collection = get_collection()
-        # Add a user to a specified project
-        if not collection.find_one({'userId': userId}):
+        # First verify user exists with string userId
+        user = users_collection.find_one({'userId': userId})
+        if not user:
+            print(f"User not found with userId: {userId}")
             return "User not found"
+            
+        # Check if project exists
+        project = projects_collection.find_one({'projectId': projectId})
+        if not project:
+            return "Project not found"
+            
+        # Check if user is already in project's users list
+        if 'users' in project and userId in project['users']:
+            return "User is already a member of this project"
         
-        result = collection.update_one(
-            {'userId': userId},
-            {'$addToSet': {'projects': projectId}}
+        # Update project's users list
+        project_result = projects_collection.update_one(
+            {'projectId': projectId},
+            {'$push': {'users': userId}}
         )
-
-        if result.modified_count > 0:
-            return "Successfully added to project!"
+        
+        # Update user's projects list
+        user_result = users_collection.update_one(
+            {'userId': userId},
+            {'$push': {'projects': projectId}}
+        )
+        
+        if project_result.modified_count > 0 and user_result.modified_count > 0:
+            return "Successfully joined project!"
         else:
-            return "Already added to project."
+            # Rollback project update if user update failed
+            if project_result.modified_count > 0 and user_result.modified_count == 0:
+                projects_collection.update_one(
+                    {'projectId': projectId},
+                    {'$pull': {'users': userId}}
+                )
+            return "Failed to update user record"
+            
     except Exception as e:
+        print(f"Exception details: {str(e)}")
         return f"An error occurred while joining project: {str(e)}"
+    
+#Function to remove a user from a project
+def leaveProject(db, userId, projectId):
+    # Assuming userId is verified and the user is authenticated
+    users_collection = db['usersDB']
+    projects_collection = db['projectsDB']
+    
+    # Convert IDs to strings
+    userId = str(userId)
+    projectId = str(projectId)
+    
+    try:
+        # verify project exists
+        project = projects_collection.find_one({'projectId': projectId})
+        if not project:
+            return "Project not found"
+        
+        # check if user is actually in the project's users list
+        if 'users' not in project or userId not in project['users']:
+            return "User is not a member of this project"
+        
+        # remove user from project's users list
+        project_result = projects_collection.update_one(
+            {'projectId': projectId},
+            {'$pull': {'users': userId}}
+        )
+        
+        # remove project from user's projects list
+        user_result = users_collection.update_one(
+            {'userId': userId},
+            {'$pull': {'projects': projectId}}
+        )
+        
+        if project_result.modified_count > 0 and user_result.modified_count > 0:
+            return "Successfully left the project"
+        else:
+            # rollback project update if user update fails
+            if project_result.modified_count > 0 and user_result.modified_count == 0:
+                projects_collection.update_one(
+                    {'projectId': projectId},
+                    {'$push': {'users': userId}}
+                )
+            return "Failed to update user record"
+            
+    except Exception as e:
+        print(f"Exception details: {str(e)}")
+        return f"An error occurred while leaving the project: {str(e)}"
+
 
 # Function to get the list of projects for a user
-def getUserProjectsList(userId):
+def getUserProjectsList(db, userId):
+    collection = db['usersDB']
     if not userId:
         return "userId is required."
     try:
-        collection = get_collection()
-        # Get and return the list of projects a user is part of
-
-        #find user in db
+        # get and return the list of projects a user is part of
         user = collection.find_one({'userId': userId})
         
-        # if found use .get to obtain projects
+        # if found, use .get to obtain projects
         if user:
+            print(user.get('projects', []))
             return user.get('projects', [])
         else:
             return "User not found"
     except Exception as e:
         return f"An error occurred while getting user projects: {str(e)}"
+
     
 # test statements for the project functions
 # def test_joinProject():

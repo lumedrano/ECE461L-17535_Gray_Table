@@ -4,3 +4,4 @@ kimberlyvenv/
 zachvenv/
 seanvenv/
 .env
+src/client/node_modules/
