@@ -11,7 +11,7 @@ HardwareSet = {
     'availability': initCapacity
 }
 '''
-client = MongoClient("mongodb+srv://teamAuth:QsbCrYdZbBIqDko8@ece461l.ezc85.mongodb.net/?retryWrites=true&w=majority&appName=ECE461L")
+# client = MongoClient("mongodb+srv://teamAuth:QsbCrYdZbBIqDko8@ece461l.ezc85.mongodb.net/?retryWrites=true&w=majority&appName=ECE461L")
 # Function to create a new hardware set
 #@app.route("/create_hardware_set")
 def createHardwareSet(db, hwSetName, initCapacity):
@@ -58,7 +58,7 @@ def getAllHwNames(db):
     return [hw['hwName'] for hw in setNames]
 
 # test code
-if __name__ == '__main__':
-    createHardwareSet(client, 'test', 100)
-    print(queryHardwareSet(client, 'test'))
+# if __name__ == '__main__':
+#     createHardwareSet(client, 'test', 100)
+#     print(queryHardwareSet(client, 'test'))
 
