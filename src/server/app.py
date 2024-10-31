@@ -176,6 +176,9 @@ def create_project():
         projectId = data['projectId']
         description = data['description']
         userID = data['userID']
+        
+        if not all([projectName, projectId, description, userID]):
+            return jsonify({'message': 'Fill out all fields.'}), 400
 
         result = projectsDB.createProject(g.db, projectName, projectId, description, userID)
 
@@ -292,21 +295,39 @@ def get_hw_info():
 # Route for creating a new hardware set
 @app.route('/create_hardware_set', methods=['POST'])
 def create_hardware_set():
+    try:
     # Extract data from request
-    data = request.json
-    hwSetName = data['hwSetName']
-    initCapacity = data['initCapacity']
+        data = request.json
+        print("Received data: ", data)
+
+        hwSetName = data.get('hwSetName')
+        initCapacity = data.get('initCapacity')
     # Connect to MongoDB
 
     # Attempt to create the hardware set using the hardwareDB module
-    result = hardwareDB.createHardwareSet(g.db, hwSetName, initCapacity)
+        if initCapacity is not None:
+            try:
+                initCapacity = int(initCapacity)
+            except ValueError:
+                return jsonify({'message': 'initCapacity must be an integer.'}), 400
+
+        print(f"hwSetName: {hwSetName}, initCapacity: {initCapacity}")
+
+        if not hwSetName or initCapacity is None:
+            return jsonify({'message': 'hwSetName and initCapacity are required.'}), 400
+
+        result = hardwareDB.createHardwareSet(g.db, hwSetName, initCapacity)
     # Close the MongoDB connection
 
     # Return a JSON response
-    if result == "Hardware Set Created Successfully":
-        return jsonify({'message:', result}), 200
-    else:
-        return jsonify({'message:', result}), 400
+        if result == "Hardware Set Created Successfully":
+            return jsonify({'message': result}), 201
+        else:
+            return jsonify({'message': result}), 400
+
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")
+        return jsonify({'message': f"Server error: {str(e)}"}), 500
 
 # Route for checking the inventory of projects
 @app.route('/api/inventory', methods=['GET'])

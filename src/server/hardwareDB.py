@@ -1,6 +1,6 @@
 # Import necessary libraries and modules
 from dataclasses import dataclass
-
+from flask import Flask, request, jsonify
 from pymongo import MongoClient
 
 '''
@@ -11,54 +11,54 @@ HardwareSet = {
     'availability': initCapacity
 }
 '''
-# client = MongoClient('localhost', 27017)
-# database = client['hwSetName']
-# collection = database['hwSetName']
+# client = MongoClient("mongodb+srv://teamAuth:QsbCrYdZbBIqDko8@ece461l.ezc85.mongodb.net/?retryWrites=true&w=majority&appName=ECE461L")
 # Function to create a new hardware set
+#@app.route("/create_hardware_set")
 def createHardwareSet(db, hwSetName, initCapacity):
     # Create a new hardware set in the database
-    try:
-        collection = db['hwSetName']
-        HardwareSet = {
-            'hwName': hwSetName,
-            'capacity': initCapacity,
-            'availability': initCapacity
-        }
-        collection.insert_one(HardwareSet)
-        return "Hardware Set Created Successfully"
-    except Exception as e:
-        return "Hardware Set Creation Error" + str(e)
-
+    HardwareSet = {
+        'hwName': hwSetName,
+        'capacity': initCapacity,
+        'availability': initCapacity
+    }
+    db['hardware_sets'].insert_one(HardwareSet)
+    return "Hardware Set Created Successfully"
 
 # Function to query a hardware set by its name
 def queryHardwareSet(db, hwSetName):
     # Query and return a hardware set from the database
-    collection = db['hwSetName']
-    query = collection.find_one({'hwName': hwSetName})
-    return query
+    return db['hardware_sets'].find_one({'hwName': hwSetName})
+
 
 # Function to update the availability of a hardware set
 def updateAvailability(db, hwSetName, newAvailability):
     # Update the availability of an existing hardware set
-    collection = db['hwSetName']
-    query = collection.find_one({'hwName': hwSetName})
-    query['availability'] = newAvailability
+    db['hardware_sets'].update_one(
+        {'hwName': hwSetName},
+        {'$set': {'availability': newAvailability}}
+    )
+    return "Availability Updated Successfully"
 
 # Function to request space from a hardware set
 def requestSpace(db, hwSetName, amount):
     # Request a certain amount of hardware and update availability
-    collection = db['hwSetName']
-    set = queryHardwareSet(db, hwSetName)
-    if set['availability'] >= amount:
-        collection.update_one(
+    hardware_set = queryHardwareSet(db, hwSetName)
+    if hardware_set and hardware_set['availability'] >= amount:
+        db['hardware_sets'].update_one(
             {'hwName': hwSetName},
-            {'$inc': {'availability': - amount}}
+            {'$inc': {'availability': -amount}}
         )
+        return "Space Requested Successfully"
+    return "Not Enough Availability or Hardware Set Not Found"
 
 # Function to get all hardware set names
 def getAllHwNames(db):
     # Get and return a list of all hardware set names
-    collection = db['hwSetName']
-    setNames = collection.find({}, {'hwName': 1, "_id": 0})
-    list = [hw['hwName'] for hw in setNames]
-    return list
+    setNames = db['hardware_sets'].find({}, {'hwName': 1, "_id": 0})
+    return [hw['hwName'] for hw in setNames]
+
+# test code
+# if __name__ == '__main__':
+#     createHardwareSet(client, 'test', 100)
+#     print(queryHardwareSet(client, 'test'))
+

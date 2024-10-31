@@ -174,7 +174,9 @@ def leaveProject(db, userId, projectId):
 
 
 # Function to get the list of projects for a user
+#TODO:check to see if userId needs to be numerical or if it can be stored and referenced as a string
 def getUserProjectsList(db, userId):
+    userId = str(userId)
     collection = db['usersDB']
     if not userId:
         return "userId is required."
@@ -184,6 +186,7 @@ def getUserProjectsList(db, userId):
         
         # if found, use .get to obtain projects
         if user:
+            print(user.get('projects', []))
             return user.get('projects', [])
         else:
             return "User not found"
