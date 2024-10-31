@@ -7,12 +7,10 @@ import { AuthProvider } from './components/logincomponents/Auth';
 import PrivateRoute from './components/logincomponents/PrivateRoute';
 import Hardware from './pages/Hardware';  // Adjust path if needed
 
-
 function App() {
   return (
-    <div>
+    <Router>
       <AuthProvider>
-      <Router>
         <Routes>
           <Route path="/" element={<Login/>}></Route>
           <Route path="/login" element={<Login/>}></Route>
@@ -21,9 +19,8 @@ function App() {
             <Route path="/hardware" element={<Hardware />} /> 
           </Route>
         </Routes>
-      </Router>
       </AuthProvider>
-    </div>
+    </Router>
   );
 }
 
