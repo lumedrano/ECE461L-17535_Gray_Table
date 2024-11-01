@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { useAuth } from "./Auth";
+import { Eye, EyeOff } from "lucide-react";
 import "./logincomponent.scss";
 
 const UserManagement = () => {
@@ -12,10 +13,14 @@ const UserManagement = () => {
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [showNewUserPopup, setShowNewUserPopup] = useState(false);
+  
+  // New state for password visibility
+  const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  
   const navigate = useNavigate();
   const [cookies, setCookie] = useCookies(['userID']);
   const { login } = useAuth();
-  
 
   const API_BASE_URL = process.env.APP_API_URL || 'http://127.0.0.1:5000';
 
@@ -91,14 +96,21 @@ const UserManagement = () => {
             />
             <label>User ID</label>
           </div>
-          <div className="input-group">
+          <div className="input-group password-input">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
             <label>Password</label>
+            <button 
+              className="password-toggle"
+              onClick={() => setShowPassword(!showPassword)}
+              type="button"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
           </div>
           <button onClick={handleSignIn}>Sign In</button>
           <button onClick={() => setShowNewUserPopup(true)}>New User</button>
@@ -124,14 +136,21 @@ const UserManagement = () => {
               />
               <label>New User ID</label>
             </div>
-            <div className="input-group">
+            <div className="input-group password-input">
               <input
-                type="password"
+                type={showNewPassword ? "text" : "password"}
                 required
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
               />
               <label>New Password</label>
+              <button 
+                className="password-toggle"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                type="button"
+              >
+                {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
             </div>
             <button onClick={handleCreateUser}>Create User</button>
             <button onClick={() => setShowNewUserPopup(false)}>Close</button>
