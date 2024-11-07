@@ -66,7 +66,6 @@ def checkIn(db, hwSetName, amount):
         )
         return "Checkin Successful"
     return "Checkin Failed"
-    pass
 
 # test code
 # if __name__ == '__main__':
