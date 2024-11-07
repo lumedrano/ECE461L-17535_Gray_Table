@@ -40,7 +40,7 @@ def updateAvailability(db, hwSetName, newAvailability):
     return "Availability Updated Successfully"
 
 # Function to request space from a hardware set
-def requestSpace(db, hwSetName, amount):
+def checkOut(db, hwSetName, amount):
     # Request a certain amount of hardware and update availability
     hardware_set = queryHardwareSet(db, hwSetName)
     if hardware_set and hardware_set['availability'] >= amount:
@@ -56,6 +56,17 @@ def getAllHwNames(db):
     # Get and return a list of all hardware set names
     setNames = db['hardware_sets'].find({}, {'hwName': 1, "_id": 0})
     return [hw['hwName'] for hw in setNames]
+
+def checkIn(db, hwSetName, amount):
+    hardware_set = queryHardwareSet(db, hwSetName)
+    if hardware_set and hardware_set['capacity'] <= amount + hardware_set['availability']:
+        db['hardware_sets'].update_one(
+            {'hwName': hwSetName},
+            {'$inc': {'availability': +amount}}
+        )
+        return "Checkin Successful"
+    return "Checkin Failed"
+    pass
 
 # test code
 # if __name__ == '__main__':
