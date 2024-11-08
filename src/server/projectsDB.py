@@ -57,7 +57,7 @@ def createProject(db, projectName, projectId, description, userId):
             'projectName': projectName,
             'projectId': projectId,
             'description': description,
-            'hwSets': {},
+            'hwSets': [], ################################################edited this to be array instead of object type for storing all unique ids
             'users': [userId]  # Add creating user to the project
         }
         

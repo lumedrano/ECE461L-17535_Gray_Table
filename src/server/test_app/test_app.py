@@ -10,7 +10,7 @@ class FlaskAppTestCase(unittest.TestCase):
         self.app.testing = True
 
 
-    #test case works
+    # test case works
     def test_add_user(self):
         # Define test data
         test_data = {
@@ -66,6 +66,22 @@ class FlaskAppTestCase(unittest.TestCase):
                                data=json.dumps(test_data), 
                                content_type='application/json')
         
+        print(response.data)
+
+    def test_createHardwareSet(self): #create a new hardwareset for projectID: 001, expect to see the unique id for this hardwareset within the hwsets portion of Test1 in ProjectsDB
+        test_data = {
+            'hwSetName': 'TestID2',
+            'initCapacity': 20,
+            'projectID': '004'            
+        }
+        response = self.app.post('/create_hardware_set', data=json.dumps(test_data), content_type='application/json')
+        print(response.data)
+
+    def test_fetchHardware(self): #fetch all documents relating to the projectID, should only be one document fetched containing all that is in the TestID set
+        test_data = {
+            'projectID': '004'
+        }
+        response = self.app.post('/fetch-hardware-sets', data=json.dumps(test_data), content_type='application/json')
         print(response.data)
 
 if __name__ == '__main__':

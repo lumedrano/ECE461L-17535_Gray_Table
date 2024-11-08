@@ -297,6 +297,7 @@ def get_hw_info():
 
 # Route for creating a new hardware set
 @app.route('/create_hardware_set', methods=['POST'])
+################################################################TODO: check to see if already exists via name; check to ensure valid project?(probably not since we are logging into a valid project)
 def create_hardware_set():
     try:
     # Extract data from request
@@ -305,6 +306,7 @@ def create_hardware_set():
 
         hwSetName = data.get('hwSetName')
         initCapacity = data.get('initCapacity')
+        projectID = data.get('projectID')
     # Connect to MongoDB
 
     # Attempt to create the hardware set using the hardwareDB module
@@ -319,7 +321,7 @@ def create_hardware_set():
         if not hwSetName or initCapacity is None:
             return jsonify({'message': 'hwSetName and initCapacity are required.'}), 400
 
-        result = hardwareDB.createHardwareSet(g.db, hwSetName, initCapacity)
+        result = hardwareDB.createHardwareSet(g.db, hwSetName, initCapacity, projectID) #added projectID parameter
     # Close the MongoDB connection
 
     # Return a JSON response
@@ -331,6 +333,26 @@ def create_hardware_set():
     except Exception as e:
         print(f"Error occurred: {str(e)}")
         return jsonify({'message': f"Server error: {str(e)}"}), 500
+    
+@app.route('/fetch-hardware-sets', methods=['POST'])
+def get_hardware_sets():
+    # Get the projectID from the request arguments
+    data = request.json
+
+    project_id = data.get('projectID')
+    
+    if not project_id:
+        return jsonify({"error": "Missing projectID parameter"}), 400
+    
+    # Fetch hardware sets using the projectID
+    hardware_sets = hardwareDB.fetchHardwareSets(g.db, project_id)
+    
+    # Handle case where project was not found
+    if hardware_sets == "Project not found":
+        return jsonify({"error": "Project not found"}), 404
+    
+    # Return the hardware sets in JSON format
+    return jsonify({"hardwareSets": hardware_sets}), 200
 
 # Route for checking the inventory of projects
 @app.route('/api/inventory', methods=['GET'])

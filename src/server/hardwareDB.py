@@ -2,6 +2,8 @@
 from dataclasses import dataclass
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
+from bson.objectid import ObjectId
+
 
 '''
 Structure of Hardware Set entry:
@@ -11,18 +13,62 @@ HardwareSet = {
     'availability': initCapacity
 }
 '''
-# client = MongoClient("mongodb+srv://teamAuth:QsbCrYdZbBIqDko8@ece461l.ezc85.mongodb.net/?retryWrites=true&w=majority&appName=ECE461L")
+
 # Function to create a new hardware set
 #@app.route("/create_hardware_set")
-def createHardwareSet(db, hwSetName, initCapacity):
+# def createHardwareSet(db, hwSetName, initCapacity):
+#     # Create a new hardware set in the database
+#     HardwareSet = {
+#         'hwName': hwSetName,
+#         'capacity': initCapacity,
+#         'availability': initCapacity
+#     }
+#     db['hardware_sets'].insert_one(HardwareSet)
+#     return "Hardware Set Created Successfully"
+
+def createHardwareSet(db, hwSetName, initCapacity, projectId):
+#TODO: check to see if already exists before creating another????
+    hw_collection = db['hardware_sets']
+    projects_collection = db['projectsDB']
     # Create a new hardware set in the database
     HardwareSet = {
         'hwName': hwSetName,
         'capacity': initCapacity,
         'availability': initCapacity
     }
-    db['hardware_sets'].insert_one(HardwareSet)
+    
+    # Insert the new hardware set and get the inserted ID
+    result = hw_collection.insert_one(HardwareSet)
+    hardware_set_id = result.inserted_id
+
+    # Update the specified project in ProjectsDB with the new hardware set ID
+    projects_collection.update_one(
+        { 'projectId': projectId },  # Use projectId to find the specific project
+        { '$push': { 'hwSets': hardware_set_id } }
+    )
     return "Hardware Set Created Successfully"
+
+
+def fetchHardwareSets(db, projectID):
+    projectID = str(projectID)
+    # Step 1: Find the project document by projectID
+    project = db['projectsDB'].find_one({'projectId': projectID})
+    
+    if not project:
+        return "Project not found"
+    
+    # Step 2: Retrieve the list of hardware set IDs from the project document
+    hardware_set_ids = project.get('hwSets', [])
+    
+    # Step 3: Fetch the hardware set documents that match these IDs
+    hardware_sets = list(db['hardware_sets'].find({'_id': {'$in': hardware_set_ids}}))
+    
+    # Convert ObjectId fields to strings
+    for hardware_set in hardware_sets:
+        hardware_set['_id'] = str(hardware_set['_id'])
+    
+    return hardware_sets
+
 
 # Function to query a hardware set by its name
 def queryHardwareSet(db, hwSetName):
