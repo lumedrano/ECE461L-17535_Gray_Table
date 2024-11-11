@@ -22,7 +22,7 @@ const UserManagement = () => {
   const [cookies, setCookie] = useCookies(['userID']);
   const { login } = useAuth();
 
-  const API_BASE_URL = process.env.APP_API_URL || 'http://127.0.0.1:5000';
+  const API_BASE_URL = process.env.REACT_APP_API_URL || '';
 
   const handleSignIn = async () => {
     try {

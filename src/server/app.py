@@ -19,7 +19,7 @@ app = Flask(__name__)
 #TODO: use the following line instead of the above when deploying code to heroku
 # app = Flask(__name__, static_folder="./build", static_url_path='/')
 
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+CORS(app)
 
 
 #load in environmental variables
@@ -57,19 +57,6 @@ def login():
     else:
         return jsonify({'message': result}), 400
 
-# Route for the main page (Work in progress)
-@app.route('/main')
-def mainPage():
-    # Extract data from request
-
-    # Connect to MongoDB
-
-    # Fetch user projects using the usersDB module
-
-    # Close the MongoDB connection
-
-    # Return a JSON response
-    return jsonify({})
 
 # Route for joining a project
 @app.route('/join_project', methods=['POST'])
@@ -139,7 +126,6 @@ def add_user():
         return jsonify({'message': result}), 400
 
 # Route for getting the list of user projects
-#TODO: maybe upon successful login of user, call this function to populate the projects page with user's project information.
 @app.route('/get_user_projects_list', methods=['POST'])
 def get_user_projects_list():
     data = request.json
@@ -199,65 +185,62 @@ def create_project():
 
 
 
-# Route for getting project information
-@app.route('/get_project_info', methods=['POST'])
-def get_project_info():
-    # Extract data from request
-    data = request.json
-    projectId = data['projectId']
 
 
-    # Connect to MongoDB
 
-    # Fetch project information using the projectsDB module
-    #TODO: fetch using user's information
-    result = projectsDB.queryProject(g.db, projectId)
-    # Close the MongoDB connection
-
-    # Return a JSON response
-
-    if result == None:
-        return jsonify({'message: Project Query Error'}), 404
-    else:
-        return jsonify({'project info:', result}), 200
-    
+#TODO: change these to call checkIn/Out from hardwareDB instead of ProjectsDB    
 # Route for checking out hardware
 @app.route('/check_out', methods=['POST'])
 def check_out():
     # Extract data from request
     data = request.json
-    projectId = data['projectId']
     hwSetName = data['hwSetName']
     amount = data['qty']
-    userId = data['userId']
-    # Connect to MongoDB
 
-    # Attempt to check out the hardware using the projectsDB module
-    result = projectsDB.checkOutHW(g.db, projectId, hwSetName, amount, userId)
+    # Attempt to check out the hardware using the hardwareDB module
+    result = hardwareDB.checkOut(g.db, hwSetName, amount)
 
-    # Close the MongoDB connection
-
-    # Return a JSON response
-    return jsonify({'message': result}), 200
+    # Check if the operation was successful or if there was an error
+    if result['message'] == "Check Out Successful!":
+        return jsonify({
+            'message': result['message'],
+            'updatedAvailability': result['availability']
+        }), 200
+    else:
+        return jsonify({
+            'message': result['message'],
+            'updatedAvailability': result['availability']
+        }), 400
 
 # Route for checking in hardware
 @app.route('/check_in', methods=['POST'])
 def check_in():
     # Extract data from request
     data = request.json
-    projectId = data['projectId']
     hwSetName = data['hwSetName']
     amount = data['qty']
-    userId = data['userId']
 
-    # Connect to MongoDB
+    # Attempt to check in the hardware using the hardwareDB module
+    result = hardwareDB.checkIn(g.db, hwSetName, amount)
 
-    # Attempt to check in the hardware using the projectsDB module
-    result = projectsDB.checkInHW(g.db, projectId, hwSetName, amount, userId)
-    # Close the MongoDB connection
+    # Check if the operation was successful or if there was an error
+    if result['message'] == "Check-in Successful":
+        return jsonify({
+            'message': result['message'],
+            'updatedAvailability': result['availability']
+        }), 200
+    else:
+        return jsonify({
+            'message': result['message'],
+            'updatedAvailability': result['availability']
+        }), 400
 
-    # Return a JSON response
-    return jsonify({'message': result}), 200
+
+
+
+
+
+
 
 
 
@@ -296,8 +279,8 @@ def get_hw_info():
 
 
 # Route for creating a new hardware set
+#TODO: look into edge cases such as if the user enters nothing, if the input is negative(cant have this), etc.
 @app.route('/create_hardware_set', methods=['POST'])
-################################################################TODO: check to see if already exists via name; check to ensure valid project?(probably not since we are logging into a valid project)
 def create_hardware_set():
     try:
     # Extract data from request
@@ -334,6 +317,40 @@ def create_hardware_set():
         print(f"Error occurred: {str(e)}")
         return jsonify({'message': f"Server error: {str(e)}"}), 500
     
+@app.route('/delete_hardware_set', methods=['POST'])
+def delete_hardware_set():
+    try:
+        # Extract data from request
+        data = request.json
+        # print("Received data: ", data)
+
+        hwSetName = data.get('hwSetName')
+        projectID = data.get('projectID')
+
+        # Connect to MongoDB
+
+        # Check if the required parameters are present
+        if not hwSetName or not projectID:
+            return jsonify({'message': 'hwSetName and projectID are required.'}), 400
+
+        # print(f"hwSetName: {hwSetName}, projectID: {projectID}")
+
+        # Attempt to delete the hardware set using the hardwareDB module
+        result = hardwareDB.deleteHardwareSet(g.db, hwSetName, projectID)
+
+        # Close the MongoDB connection
+
+        # Return a JSON response
+        if result == "Hardware Set Deleted Successfully":
+            return jsonify({'message': result}), 200
+        else:
+            return jsonify({'message': result}), 400
+
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")
+        return jsonify({'message': f"Server error: {str(e)}"}), 500
+
+    
 @app.route('/fetch-hardware-sets', methods=['POST'])
 def get_hardware_sets():
     # Get the projectID from the request arguments
@@ -347,34 +364,34 @@ def get_hardware_sets():
     # Fetch hardware sets using the projectID
     hardware_sets = hardwareDB.fetchHardwareSets(g.db, project_id)
     
+    # Handle case where hardware_sets is empty or None
+    if not hardware_sets:
+        return jsonify({"message": []}), 200
+    
     # Handle case where project was not found
     if hardware_sets == "Project not found":
         return jsonify({"error": "Project not found"}), 404
     
+    # print(hardware_sets)
+    
     # Return the hardware sets in JSON format
-    return jsonify({"hardwareSets": hardware_sets}), 200
+    return jsonify({"message": hardware_sets}), 200
 
-# Route for checking the inventory of projects
-@app.route('/api/inventory', methods=['GET'])
-def check_inventory():
-    data = request.json
-    # Connect to MongoDB
 
-    # Fetch all projects from the HardwareCheckout.Projects collection
-    collection = g.db['HardwareCheckout']
-    projects = collection['Projects']
-
-    # Close the MongoDB connection
-
-    # Return a JSON response
-    return jsonify({projects}), 200
 
 #index.html is the page we want to load as soon as the flask app starts. from the build folder after running npm run build
 # @app.route('/')
 # def index():
 #     return app.send_static_file('index.html')
+# @app.errorhandler(404)
+# def not_found(e):
+#     return app.send_static_file('index.html')
+
+#uncomment when ready to deploy
+# if __name__ == "__main__":
+#     app.run(host='0.0.0.0', debug=False, port=os.environ.get('PORT', 80))
 
 # Main entry point for the application
 if __name__ == '__main__':
-    app.run(debug=True, ssl_context=None)  # Disable SSL for development
+    app.run(debug=True)  # Disable SSL for development
 

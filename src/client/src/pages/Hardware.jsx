@@ -3,9 +3,9 @@ import HardwareSets from '../components/hardwareSets/hardwareSet';
 
 function Hardware(){
     return (
-        <div className='page-container'>
+        // <div className='page-container'>
             <HardwareSets />
-        </div>
+        // </div>
     );
 }
 
