@@ -5,13 +5,15 @@ import { useLocation } from "react-router-dom"; // for loginProjectId
 import "./hardwareSet.scss";
 
 const HardwareSets = () => {
+    const { state } = useLocation(); // Destructure state from location
+    const initialProjectId = state?.loginProjectId || ""; // Access loginProjectId from state
+    const [loginProjectId, setLoginProjectId] = useState(initialProjectId);
     const [hardwareSets, setHardwareSets] = useState([]);
     const [newHardwareName, setNewHardwareName] = useState("");
     const [newHardwareCapacity, setNewHardwareCapacity] = useState("");
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const [availabilityChange, setAvailabilityChange] = useState("");
-    const [loginProjectId, setLoginProjectId] = useState(location.state?.loginProjectId || ""); // Initialize with the passed loginProjectId
-    const [cookies, removeCookie] = useCookies(['userID']);
+    const [cookies] = useCookies(['userID']);
 
     const API_BASE_URL = process.env.APP_API_URL || 'http://127.0.0.1:5000';
 
@@ -83,7 +85,7 @@ const HardwareSets = () => {
                 body: JSON.stringify({
                     projectId: loginProjectId,
                     hwSetName: hardwareSets[selectedIndex].hwName,
-                    qty: parseInt(availabilityChange),
+                    qty: parseInt(availabilityChange, 10),
                     userId: cookies.userID
                 }),
             });
@@ -114,7 +116,7 @@ const HardwareSets = () => {
                 body: JSON.stringify({
                     projectId: loginProjectId,
                     hwSetName: hardwareSets[selectedIndex].hwName,
-                    qty: parseInt(availabilityChange),
+                    qty: parseInt(availabilityChange, 10),
                     userId: cookies.userID
                 }),
             });
