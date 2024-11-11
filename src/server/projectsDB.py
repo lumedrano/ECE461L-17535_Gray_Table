@@ -121,6 +121,9 @@ def checkOutHW(db, projectId, hwSetName, qty, userId):
         {'projectId': projectId},
         {'$set': {f'hwSets.{hwSetName}': new_qty}}
     )
+
+    hardwareDB.requestSpace(db, hwSetName, qty)
+    
     return f"{qty} of {hwSetName} checked out from project {projectId} by user {userId}."
     #pass
 
@@ -140,6 +143,8 @@ def checkInHW(db, projectId, hwSetName, qty, userId):
         {'projectId': projectId},
         {'$set': {f'hwSets.{hwSetName}': new_qty}}
     )
+
+    hardwareDB.updateAvailability(db, hwSetName, qty)
     return f"{qty} of {hwSetName} checked in to project {projectId} by user {userId}."
     #pass
 # Function to get project information

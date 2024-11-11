@@ -16,6 +16,9 @@ import hardwareDB
 
 # Initialize a new Flask web application
 app = Flask(__name__)
+#TODO: use the following line instead of the above when deploying code to heroku
+# app = Flask(__name__, static_folder="./build", static_url_path='/')
+
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 
@@ -263,13 +266,13 @@ def check_in():
 #HardwareSet handlers Below
 
 
-# Route for getting all hardware names
-@app.route('/get_all_hw_names', methods=['POST'])
-def get_all_hw_names():
+# Route for getting all hardware sets in a list
+@app.route('/get_all_hw_sets', methods=['POST'])
+def get_all_hw_sets():
     # Connect to MongoDB
 
-    # Fetch all hardware names using the hardwareDB module
-    result = hardwareDB.getAllHwNames(g.db)
+    # Fetch all hardware sets using the hardwareDB module
+    result = hardwareDB.getAllHWSets(g.db)
     # Close the MongoDB connection
 
     # Return a JSON response
@@ -343,6 +346,11 @@ def check_inventory():
 
     # Return a JSON response
     return jsonify({projects}), 200
+
+#index.html is the page we want to load as soon as the flask app starts. from the build folder after running npm run build
+# @app.route('/')
+# def index():
+#     return app.send_static_file('index.html')
 
 # Main entry point for the application
 if __name__ == '__main__':
