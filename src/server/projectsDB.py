@@ -111,20 +111,16 @@ def checkOutHW(db, projectId, hwSetName, qty, userId):
     if not project:
         return "Project not found."
 
+    if (hardwareDB.requestSpace(db, hwSetName, qty) == "Not Enough Availability or Hardware Set Not Found"):
+        return f"Not enough of {hwSetName} is available."
+    
     current_qty = project['hwSets'].get(hwSetName, 0)
-    
-    if current_qty < qty:
-        return f"Not enough of {hwSetName} is available. Only {current_qty} is available."
-    
-    new_qty = current_qty - qty
+    new_qty = current_qty + qty
     collection.update_one(
         {'projectId': projectId},
         {'$set': {f'hwSets.{hwSetName}': new_qty}}
     )
-
-    hardwareDB.requestSpace(db, hwSetName, qty)
-    
-    return f"{qty} of {hwSetName} checked out from project {projectId} by user {userId}."
+    return "Successfully checked out."
     #pass
 
 # Function to check in hardware for a project
@@ -135,18 +131,21 @@ def checkInHW(db, projectId, hwSetName, qty, userId):
     
     if not project:
         return f"Project {projectId} not found."
-
+    
     current_qty = project['hwSets'].get(hwSetName, 0)
-    new_qty = current_qty + qty
-
+    if current_qty < qty:
+        # Attempting to check in more than the project has
+        return f"Can't check in {qty}. {projectId} only has {current_qty}."
+    
+    new_qty = current_qty - qty
     collection.update_one(
         {'projectId': projectId},
         {'$set': {f'hwSets.{hwSetName}': new_qty}}
     )
-
     hardwareDB.updateAvailability(db, hwSetName, qty)
-    return f"{qty} of {hwSetName} checked in to project {projectId} by user {userId}."
+    return "Successfully checked in."
     #pass
+
 # Function to get project information
 
 # Testing

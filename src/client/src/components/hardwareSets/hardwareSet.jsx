@@ -76,6 +76,14 @@ const HardwareSets = () => {
     const handleCheckOut = async (e) => {
         e.preventDefault();
 
+        if (selectedIndex === -1) {
+            alert("Please select a hardware set first.");
+            return;
+        }
+
+        const selectedSet = hardwareSets[selectedIndex];
+        const hwName = selectedSet.hwName;
+
         try {
             const response = await fetch(`${API_BASE_URL}/check_out`, {
                 method: "POST",
@@ -84,8 +92,8 @@ const HardwareSets = () => {
                 },
                 body: JSON.stringify({
                     projectId: loginProjectId,
-                    hwSetName: hardwareSets[selectedIndex].hwName,
-                    qty: parseInt(availabilityChange, 10),
+                    hwSetName: hwName,
+                    qty: parseInt(availabilityChange),
                     userId: cookies.userID
                 }),
             });
@@ -93,19 +101,38 @@ const HardwareSets = () => {
             const data = await response.json();
 
             if (response.ok) {
+                // Update availability in the frontend state
+                const updatedHardwareSets = hardwareSets.map((set, index) => {
+                    if (index === selectedIndex) {
+                        return {
+                            ...set,
+                            availability: set.availability - parseInt(availabilityChange)
+                        };
+                    }
+                    return set;
+                });
+                setHardwareSets(updatedHardwareSets);
                 alert("Space Checked Out Successfully");
             } else {
-                console.error(`Error checking out space to hardware set: ${data.message}`);
-                alert(`Error checking out space to hardware set: ${data.message}`);
+                console.error(`Error checking out space: ${data.message}`);
+                alert(`Error: ${data.message}`);
             }
         } catch (error) {
-            console.error("An error occurred while attempting to check out space:", error);
+            console.error("An error occurred:", error);
             alert("An error occurred. Please try again.");
         }
     };
 
     const handleCheckIn = async (e) => {
         e.preventDefault();
+
+        if (selectedIndex === -1) {
+            alert("Please select a hardware set first.");
+            return;
+        }
+
+        const selectedSet = hardwareSets[selectedIndex];
+        const hwName = selectedSet.hwName;
 
         try {
             const response = await fetch(`${API_BASE_URL}/check_in`, {
@@ -115,8 +142,8 @@ const HardwareSets = () => {
                 },
                 body: JSON.stringify({
                     projectId: loginProjectId,
-                    hwSetName: hardwareSets[selectedIndex].hwName,
-                    qty: parseInt(availabilityChange, 10),
+                    hwSetName: hwName,
+                    qty: parseInt(availabilityChange),
                     userId: cookies.userID
                 }),
             });
@@ -124,16 +151,28 @@ const HardwareSets = () => {
             const data = await response.json();
 
             if (response.ok) {
+                // Update availability in the frontend state
+                const updatedHardwareSets = hardwareSets.map((set, index) => {
+                    if (index === selectedIndex) {
+                        return {
+                            ...set,
+                            availability: set.availability + parseInt(availabilityChange)
+                        };
+                    }
+                    return set;
+                });
+                setHardwareSets(updatedHardwareSets);
                 alert("Space Checked In Successfully");
             } else {
-                console.error(`Error checking in space to hardware set: ${data.message}`);
-                alert(`Error checking in space to hardware set: ${data.message}`);
+                console.error(`Error checking in space: ${data.message}`);
+                alert(`Error: ${data.message}`);
             }
         } catch (error) {
-            console.error("An error occurred while attempting to check in space:", error);
+            console.error("An error occurred:", error);
             alert("An error occurred. Please try again.");
         }
     };
+
 
     return (
         <div className="hardware-sets">
@@ -175,14 +214,14 @@ const HardwareSets = () => {
                         value={availabilityChange}
                         onChange={(e) => setAvailabilityChange(e.target.value)}
                         required
-                        placeholder="Check In/Out Amount"
+                        placeholder="Quantity"
                     />
                 </div>
                 <div className="button-group">
-                    <button type="button" className="checkout-button" onClick={ handleCheckOut }>
+                    <button type="button" className="checkout-button" onClick={handleCheckOut}>
                         Check Out
                     </button>
-                    <button type="button" className="checkin-button" onClick={ handleCheckIn }>
+                    <button type="button" className="checkin-button" onClick={handleCheckIn}>
                         Check In
                     </button>
                 </div>
