@@ -4,4 +4,6 @@ kimberlyvenv/
 zachvenv/
 seanvenv/
 .env
+__pycache__/
+*.pyc
 src/client/node_modules/
