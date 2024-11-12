@@ -27,7 +27,8 @@ load_dotenv()
 
 @app.before_request
 def before_request():
-    g.client = MongoClient(os.getenv('MONGODB_CONNECTION_STRING'), server_api=ServerApi('1'), tls=True, tlsAllowInvalidCertificates=True)
+    #REPLACED CONNECTION STRING ENV VARIABLE TO BE THE ACTUAL STRING TO SAVE TIME ON INCLUDING ENV IN HEROKU
+    g.client = MongoClient(os.getenv('mongodb+srv://lumedrano:EcE21225@ece461l.ezc85.mongodb.net/?retryWrites=true&w=majority&appName=ECE461L'), server_api=ServerApi('1'), tls=True, tlsAllowInvalidCertificates=True)
     g.db = g.client['ece461l_final_project']
 
 @app.teardown_request
