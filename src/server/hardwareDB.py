@@ -16,9 +16,9 @@ HardwareSet = {
     'availability': initCapacity
 }
 '''
+
 client = MongoClient(os.getenv("MONGODB_CONNECTION_STRING"))
 db = client['hardwareDB_TEST']
-
 # Function to create a new hardware set
 def createHardwareSet(db, hwSetName, initCapacity, projectId):
     hwCollection = db['hardwareSets']
@@ -119,7 +119,7 @@ def updateAvailability(db, hwSetName, changeInAvailability):
     return "Availability Updated Successfully"
 
 # Function to request space from a hardware set
-def requestSpace(db, hwSetName, amount):
+def checkOut(db, hwSetName, amount):
     # Request a certain amount of hardware and update availability
     # Check if the requested amount is valid (positive whole number)
     if amount <= 0 or not isinstance(amount, int):
@@ -150,7 +150,6 @@ def getAllHWSets(db):
     HWsets = collection.find({}, {'hwName': 1, 'capacity': 1, 'availability': 1, '_id': 0})
     setsList = list(HWsets)
     return setsList
-
 # # test code
 # if __name__ == '__main__':
 #     collection = db['hardwareSets']

@@ -1,10 +1,15 @@
+
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { useAuth } from '../logincomponents/Auth';
 import "./hardwareSet.scss";
 import projects from "../projects/projects";
-
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useCookies } from "react-cookie";
+import { useAuth } from '../logincomponents/Auth'; // Import Auth context
+import "./hardwareSet.scss";
 const HardwareSets = () => {
     const [hardwareSets, setHardwareSets] = useState([]);
     const [newHardwareName, setNewHardwareName] = useState("");
@@ -61,7 +66,6 @@ const handleCreateHardwareSet = async (e) => {
             }),
         });
         const data = await response.json();
-
         if (data.status === "success") {
             alert(data.message);
             setNewHardwareName("");
@@ -150,7 +154,6 @@ const handleCreateHardwareSet = async (e) => {
             logout();
         }
     };
-
     const handleGoBack = () => {
         navigate('/projects');
     };
@@ -166,7 +169,6 @@ const handleCreateHardwareSet = async (e) => {
                     <button onClick={handleGoBack}>Go Back to Projects</button>
                 </div>
             </div>
-
             <div className="content-section">
                 <div className="create-hardware-form">
                     <h3>Create New Hardware Set</h3>

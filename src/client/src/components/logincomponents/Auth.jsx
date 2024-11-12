@@ -5,12 +5,10 @@ const Auth = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [cookies] = useCookies(['userID']);
+  const [cookies, removeCookie] = useCookies(['userID']);
 
   useEffect(() => {
-    if (cookies.userID) {
-      setIsAuthenticated(true);
-    }
+    setIsAuthenticated(!!cookies.userID);
   }, [cookies.userID]);
 
   const login = (userId) => {
@@ -18,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    removeCookie('userID');
     setIsAuthenticated(false);
   };
 
