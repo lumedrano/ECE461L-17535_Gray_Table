@@ -15,7 +15,7 @@ HardwareSet = {
     'availability': initCapacity
 }
 '''
-client = MongoClient("mongodb+srv://teamAuth:QsbCrYdZbBIqDko8@ece461l.ezc85.mongodb.net/?retryWrites=true&w=majority&appName=ECE461L")
+client = MongoClient("MONGODB_CONNECTION_STRING")
 db = client['hardwareDB_TEST']
 
 # Function to create a new hardware set
