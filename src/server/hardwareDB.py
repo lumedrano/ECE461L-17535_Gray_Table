@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+import os
 
 # print("PyMongo version:", pymongo.__version__)
 
@@ -15,7 +16,7 @@ HardwareSet = {
     'availability': initCapacity
 }
 '''
-client = MongoClient("MONGODB_CONNECTION_STRING")
+client = MongoClient(os.getenv("MONGODB_CONNECTION_STRING"))
 db = client['hardwareDB_TEST']
 
 # Function to create a new hardware set
