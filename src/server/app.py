@@ -1,4 +1,3 @@
-
 # Import necessary libraries and modules
 from bson.objectid import ObjectId
 from flask import Flask, request, jsonify, g
@@ -90,7 +89,7 @@ def join_project():
     elif result.startswith("An error occurred"):
         return jsonify({'message': result}), 500  # server-side error
     else:
-        return jsonify({'message': result}), 400 
+        return jsonify({'message': result}), 400
 
 # Route for removing a user from a project using projectId
 @app.route('/leave_project', methods=['POST'])
@@ -165,18 +164,18 @@ def get_user_projects_list():
 def create_project():
     try:
         data = request.json
-        
+
         # validate required fields
         required_fields = ['projectName', 'projectId', 'description', 'userID']
         for field in required_fields:
             if field not in data:
                 return jsonify({'message': f'Missing required field: {field}'}), 400
-                
+
         projectName = data['projectName']
         projectId = data['projectId']
         description = data['description']
         userID = data['userID']
-        
+
         if not all([projectName, projectId, description, userID]):
             return jsonify({'message': 'Fill out all fields.'}), 400
 
@@ -184,13 +183,13 @@ def create_project():
 
         if result == "Project created successfully":
             return jsonify({
-                'message': result, 
+                'message': result,
                 'projectId': projectId,
                 'projectName': projectName
             }), 201
         else:
             return jsonify({'message': result}), 400
-            
+
     except Exception as e:
         return jsonify({'message': f'Server error: {str(e)}'}), 500
 
@@ -217,7 +216,7 @@ def get_project_info():
         return jsonify({'message: Project Query Error'}), 404
     else:
         return jsonify({'project info:', result}), 200
-    
+
 # Route for checking out hardware
 @app.route('/check_out', methods=['POST'])
 def check_out():
@@ -263,13 +262,13 @@ def check_in():
 #HardwareSet handlers Below
 
 
-# Route for getting all hardware names
-@app.route('/get_all_hw_names', methods=['POST'])
-def get_all_hw_names():
+# Route for getting all hardware sets in a list
+@app.route('/get_all_hw_sets', methods=['POST'])
+def get_all_hw_sets():
     # Connect to MongoDB
 
-    # Fetch all hardware names using the hardwareDB module
-    result = hardwareDB.getAllHwNames(g.db)
+    # Fetch all hardware sets using the hardwareDB module
+    result = hardwareDB.getAllHWSets(g.db)
     # Close the MongoDB connection
 
     # Return a JSON response
@@ -296,38 +295,95 @@ def get_hw_info():
 @app.route('/create_hardware_set', methods=['POST'])
 def create_hardware_set():
     try:
-    # Extract data from request
+        # Extract data from request
         data = request.json
-        print("Received data: ", data)
-
         hwSetName = data.get('hwSetName')
         initCapacity = data.get('initCapacity')
-    # Connect to MongoDB
+        projectID = data.get('projectId')
+        # Connect to MongoDB
 
-    # Attempt to create the hardware set using the hardwareDB module
-        if initCapacity is not None:
-            try:
-                initCapacity = int(initCapacity)
-            except ValueError:
-                return jsonify({'message': 'initCapacity must be an integer.'}), 400
+        # Attempt to create the hardware set using the hardwareDB module
+        # print(f"hwSetName: {hwSetName}, initCapacity: {initCapacity}, projectId: {projectID}")
 
-        print(f"hwSetName: {hwSetName}, initCapacity: {initCapacity}")
+        if not hwSetName or initCapacity is None or not projectID:  # Validate that projectId is provided
+            return jsonify({'message': 'hwSetName, initCapacity, and projectId are required.'}), 400
 
-        if not hwSetName or initCapacity is None:
-            return jsonify({'message': 'hwSetName and initCapacity are required.'}), 400
+        result = hardwareDB.createHardwareSet(g.db, hwSetName, initCapacity, projectID)
+        # Close the MongoDB connection
 
-        result = hardwareDB.createHardwareSet(g.db, hwSetName, initCapacity)
-    # Close the MongoDB connection
+        # Return a JSON response
+        if result['status'] == "success":
+            return jsonify(result), 201
+        else:
+            return jsonify(result), 400
 
-    # Return a JSON response
-        if result == "Hardware Set Created Successfully":
-            return jsonify({'message': result}), 201
+    except Exception as e:
+        return jsonify({'message': f"Server error: {str(e)}"}), 500
+
+
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")
+        return jsonify({'message': f"Server error: {str(e)}"}), 500
+
+@app.route('/delete_hardware_set', methods=['POST'])
+def delete_hardware_set():
+    try:
+        # Extract data from request
+        data = request.json
+        # print("Received data: ", data)
+
+        hwSetName = data.get('hwSetName')
+        projectID = data.get('projectId')
+
+        # Connect to MongoDB
+
+        # Check if the required parameters are present
+        if not hwSetName or not projectID:
+            return jsonify({'message': 'hwSetName and projectID are required.'}), 400
+
+        # print(f"hwSetName: {hwSetName}, projectID: {projectID}")
+
+        # Attempt to delete the hardware set using the hardwareDB module
+        result = hardwareDB.deleteHardwareSet(g.db, hwSetName, projectID)
+
+        # Close the MongoDB connection
+
+        # Return a JSON response
+        if result == "Hardware Set Deleted Successfully":
+            return jsonify({'message': result}), 200
         else:
             return jsonify({'message': result}), 400
 
     except Exception as e:
         print(f"Error occurred: {str(e)}")
         return jsonify({'message': f"Server error: {str(e)}"}), 500
+
+@app.route('/fetch-hardware-sets', methods=['POST'])
+def get_hardware_sets():
+    # Get the projectID from the request arguments
+    data = request.json
+
+    project_id = data.get('projectId')
+
+    if not project_id:
+        return jsonify({"error": "Missing projectID parameter"}), 400
+
+    # Fetch hardware sets using the projectID
+    hardware_sets = hardwareDB.fetchHardwareSets(g.db, project_id)
+
+    # Handle case where hardware_sets is empty or None
+    if not hardware_sets:
+        return jsonify({"message": []}), 200
+
+    # Handle case where project was not found
+    if hardware_sets == "Project not found":
+        return jsonify({"error": "Project not found"}), 404
+
+    # print(hardware_sets)
+
+    # Return the hardware sets in JSON format
+    return jsonify({"message": hardware_sets}), 200
+
 
 # Route for checking the inventory of projects
 @app.route('/api/inventory', methods=['GET'])
@@ -344,7 +400,12 @@ def check_inventory():
     # Return a JSON response
     return jsonify({projects}), 200
 
+
+# index.html is the page we want to load as soon as the flask app starts. from the build folder after running npm run build
+# @app.route('/')
+# def index():
+#     return app.send_static_file('index.html')
+
 # Main entry point for the application
 if __name__ == '__main__':
     app.run(debug=True, ssl_context=None)  # Disable SSL for development
-
