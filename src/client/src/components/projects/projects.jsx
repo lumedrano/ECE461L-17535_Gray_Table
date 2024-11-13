@@ -10,38 +10,51 @@ const Projects = () => {
   const [loginProjectId, setLoginProjectId] = useState("");
   const [joinedProjects, setJoinedProjects] = useState(null); 
   const [cookies, setCookie, removeCookie] = useCookies(['userID', 'projectID']);
+  //states for pop up message
+  const [popupMessage, setPopupMessage] = useState("");
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
   const navigate = useNavigate();
 
 
   const API_BASE_URL = process.env.REACT_APP_API_URL || '';
+
+  const PopupMessage = ({ message, onClose }) => (
+    <div className="popup-message">
+      <div className="popup-content">
+        <p>{message}</p>
+        <button onClick={onClose}>Close</button>
+      </div>
+    </div>
+  );
 
   const handleCreateProject = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/create_project`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          projectName: projectName, 
-          projectId: projectId, 
+        body: JSON.stringify({
+          projectName: projectName,
+          projectId: projectId,
           description: projectDescription,
-          userID: cookies.userID 
+          userID: cookies.userID,
         }),
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         console.log("Project created:", data);
-        alert("Project created successfully!");
-        // setCookie('projectID', projectId, { path: '/' });//set the cookies to the projectID passed to the body of request
+        setPopupMessage("Project created successfully!");
+        setIsPopupVisible(true);
         fetchJoinedProjects();
-        // navigate("/hardware");
       } else {
         const errorData = await response.json();
-        alert(`Failed to create project: ${errorData.message}`);
+        setPopupMessage(`Failed to create project: ${errorData.message}`);
+        setIsPopupVisible(true);
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Error: " + error);
+      setPopupMessage("Error: " + error);
+      setIsPopupVisible(true);
     }
   };
   
@@ -52,29 +65,31 @@ const Projects = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: cookies.userID, projectId: loginProjectId }),
       });
-  
+
       const data = await response.json();
-      
+
       if (response.ok) {
-        console.log("Joined project:", data);
-        alert("Successfully joined the project!");
-        // setCookie('projectID', loginProjectId, { path: '/' });//set the cookies to the projectID passed to the body of request
+        setPopupMessage("Successfully joined the project!");
+        setIsPopupVisible(true);
         fetchJoinedProjects();
-        // navigate("/hardware");
       } else if (response.status === 404) {
-        alert("Project not found. Please check the project ID.");
+        setPopupMessage("Project not found. Please check the project ID.");
+        setIsPopupVisible(true);
       } else if (response.status === 409) {
-        alert("You are already a member of this project.");
-        setCookie('projectID', loginProjectId, { path: '/' });//set the cookies to the projectID passed to the body of request
-        // navigate("/hardware");
+        setPopupMessage("You are already a member of this project.");
+        setIsPopupVisible(true);
+        setCookie("projectID", loginProjectId, { path: "/" });
       } else if (response.status === 500) {
-        alert("Server error occurred. Please try again later.");
+        setPopupMessage("Server error occurred. Please try again later.");
+        setIsPopupVisible(true);
       } else {
-        alert(data.message || "Failed to join project.");
+        setPopupMessage(data.message || "Failed to join project.");
+        setIsPopupVisible(true);
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Network error occurred. Please check your connection.");
+      setPopupMessage("Network error occurred. Please check your connection.");
+      setIsPopupVisible(true);
     }
   };
 
@@ -85,26 +100,30 @@ const Projects = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: cookies.userID, projectId: loginProjectId }),
       });
-  
+
       const data = await response.json();
-      
+
       if (response.ok) {
-        console.log("Left project:", data);
-        alert("Successfully left the project!");
+        setPopupMessage("Successfully left the project!");
+        setIsPopupVisible(true);
         fetchJoinedProjects();
       } else if (response.status === 404) {
-        alert("Project not found. Please check the project ID.");
+        setPopupMessage("Project not found. Please check the project ID.");
+        setIsPopupVisible(true);
       } else if (response.status === 409) {
-        alert("You are not a member of this project.");
-        setCookie('projectID', loginProjectId, { path: '/' });//set the cookies to the projectID passed to the body of request
+        setPopupMessage("You are not a member of this project.");
+        setIsPopupVisible(true);
       } else if (response.status === 500) {
-        alert("Server error occurred. Please try again later.");
+        setPopupMessage("Server error occurred. Please try again later.");
+        setIsPopupVisible(true);
       } else {
-        alert(data.message || "Failed to leave project.");
+        setPopupMessage(data.message || "Failed to leave project.");
+        setIsPopupVisible(true);
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Network error occurred. Please check your connection.");
+      setPopupMessage("Network error occurred. Please check your connection.");
+      setIsPopupVisible(true);
     }
   };
 
@@ -222,6 +241,12 @@ const Projects = () => {
           </div>
         </div>
       </div>
+      {isPopupVisible && (
+        <PopupMessage 
+          message={popupMessage} 
+          onClose={() => setIsPopupVisible(false)} 
+        />
+      )}
     </div>
   );
 };

@@ -8,12 +8,25 @@ const HardwareSets = () => {
     const [hardwareSets, setHardwareSets] = useState([]);
     const [newHardwareName, setNewHardwareName] = useState("");
     const [newHardwareCapacity, setNewHardwareCapacity] = useState("");
+    //states for pop up message
+    const [popupMessage, setPopupMessage] = useState("");
+    const [isPopupVisible, setIsPopupVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const [cookies] = useCookies(["projectID"]);
     const projectID = cookies.projectID;
     const { logout } = useAuth();
     const API_BASE_URL = process.env.REACT_APP_API_URL || '';
     const navigate = useNavigate();
+
+
+    const PopupMessage = ({ message, onClose }) => (
+        <div className="popup-message">
+          <div className="popup-content">
+            <p>{message}</p>
+            <button onClick={onClose}>Close</button>
+          </div>
+        </div>
+      );
 
     const fetchHardwareSets = useCallback(async () => {
         setLoading(true);
@@ -51,15 +64,18 @@ const HardwareSets = () => {
             });
             const data = await response.json();
             if (response.ok) {
-                alert("Hardware Set Created Successfully");
+                setPopupMessage("Hardware Set Created Successfully");
+                setIsPopupVisible(true);
                 setNewHardwareName("");
                 setNewHardwareCapacity("");
                 fetchHardwareSets();
             } else {
-                alert(`Failed to create hardware set: ${data.message}`);
+                setPopupMessage(`Failed to create hardware set: ${data.message}`);
+                setIsPopupVisible(true);
             }
         } catch (error) {
-            alert("An error occurred. Please try again.");
+            setPopupMessage("An error occurred. Please try again.");
+            setIsPopupVisible(true);
         }
     };
 
@@ -78,7 +94,8 @@ const HardwareSets = () => {
         // Validate quantity before making a request
         const parsedQty = parseFloat(qty);
         if (isNaN(parsedQty) || parsedQty <= 0) {
-            alert("Please enter a valid positive number for quantity.");
+            setPopupMessage("Please enter a valid positive number for quantity.");
+            setIsPopupVisible(true);
             return;
         }
 
@@ -94,12 +111,14 @@ const HardwareSets = () => {
             });
 
             const data = await response.json();
-            alert(data.message); // Show the response message from the backend
+            setPopupMessage(data.message); // Show the response message from the backend
+            setIsPopupVisible(true);
             if (response.ok) {
                 fetchHardwareSets(); // Re-fetch hardware sets to update the availability
             }
         } catch (error) {
-            alert("An error occurred. Please try again.");
+            setPopupMessage("An error occurred. Please try again.");
+            setIsPopupVisible(true);
         }
     };
 
@@ -114,12 +133,14 @@ const HardwareSets = () => {
                 }),
             });
             const data = await response.json();
-            alert(data.message); // Show the response message from the backend
+            setPopupMessage(data.message); // Show the response message from the backend
+            setIsPopupVisible(true);
             if (response.ok) {
                 fetchHardwareSets(); // Re-fetch hardware sets to update the availability
             }
         } catch (error) {
-            alert("An error occurred. Please try again.");
+            setPopupMessage("An error occurred. Please try again.");
+            setIsPopupVisible(true);
         }
     };
 
@@ -213,6 +234,12 @@ const HardwareSets = () => {
                     )}
                 </div>
             </div>
+            {isPopupVisible && (
+            <PopupMessage 
+            message={popupMessage} 
+            onClose={() => setIsPopupVisible(false)} 
+        />
+      )}
         </div>
     );
 };
