@@ -8,7 +8,7 @@ const Projects = () => {
   const [projectDescription, setProjectDescription] = useState("");
   const [projectId, setProjectId] = useState("");
   const [loginProjectId, setLoginProjectId] = useState("");
-  const [joinedProjects, setJoinedProjects] = useState(null); 
+  const [joinedProjects, setJoinedProjects] = useState(null);
   const [cookies, removeCookie] = useCookies(['userID']);
   const navigate = useNavigate();
 
@@ -20,14 +20,14 @@ const Projects = () => {
       const response = await fetch(`${API_BASE_URL}/create_project`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          projectName: projectName, 
-          projectId: projectId, 
+        body: JSON.stringify({
+          projectName: projectName,
+          projectId: projectId,
           description: projectDescription,
-          userID: cookies.userID 
+          userID: cookies.userID
         }),
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         console.log("Project created:", data);
@@ -42,7 +42,7 @@ const Projects = () => {
       alert("Error: " + error);
     }
   };
-  
+
   const handleLoginProject = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/join_project`, {
@@ -50,18 +50,18 @@ const Projects = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: cookies.userID, projectId: loginProjectId }),
       });
-  
+
       const data = await response.json();
-      
+
       if (response.ok) {
         console.log("Joined project:", data);
         alert("Successfully joined the project!");
-        navigate("/hardware");
+        navigate("/hardware", { state: { loginProjectId } });
       } else if (response.status === 404) {
         alert("Project not found. Please check the project ID.");
       } else if (response.status === 409) {
         alert("You are already a member of this project.");
-        navigate("/hardware");
+        navigate("/hardware", { state: { loginProjectId } });
       } else if (response.status === 500) {
         alert("Server error occurred. Please try again later.");
       } else {
@@ -156,25 +156,25 @@ const Projects = () => {
         </div>
         <button onClick={handleLoginProject}>Join Project</button>
         <div className="joined-projects-area">
-        <h3>Your Joined Projects</h3>
-        <button onClick={fetchJoinedProjects}>Load Joined Projects</button>
-        {joinedProjects !== null && (
-          joinedProjects.length > 0 ? (
-            <div className="project-list">
-              {joinedProjects.map((projectId) => (
-                <div key={projectId} className="project-item">
-                  <p>Project ID: {projectId}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>You have not joined any projects yet.</p>
-          )
-        )}
-      </div>
+          <h3>Your Joined Projects</h3>
+          <button onClick={fetchJoinedProjects}>Load Joined Projects</button>
+          {joinedProjects !== null && (
+            joinedProjects.length > 0 ? (
+              <div className="project-list">
+                {joinedProjects.map((projectId) => (
+                  <div key={projectId} className="project-item">
+                    <p>Project ID: {projectId}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>You have not joined any projects yet.</p>
+            )
+          )}
+        </div>
       </div>
     </div>
-  );  
+  );
 };
 
 export default Projects;

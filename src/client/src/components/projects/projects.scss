@@ -130,16 +130,16 @@ button:hover {
     right: 20px;
   }
   
-//   .logout-button {
-//     background-color: #ff6b6b;
-//     color: white;
-//     padding: 10px 20px;
-//     border: none;
-//     border-radius: 5px;
-//     cursor: pointer;
-//     transition: background-color 0.3s ease;
+  .logout-button {
+    background-color: #ff6b6b;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
   
-//     &:hover {
-//       background-color: #ff4757;
-//     }
-//   }
+    &:hover {
+      background-color: #ff4757;
+    }
+  }

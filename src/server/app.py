@@ -228,17 +228,19 @@ def check_out():
     data = request.json
     projectId = data['projectId']
     hwSetName = data['hwSetName']
-    amount = data['qty']
+    qty = data['qty']
     userId = data['userId']
     # Connect to MongoDB
 
     # Attempt to check out the hardware using the projectsDB module
-    result = projectsDB.checkOutHW(g.db, projectId, hwSetName, amount, userId)
-
+    result = projectsDB.checkOutHW(g.db, projectId, hwSetName, qty, userId)
+    if(result == "Successfully checked out."):
+        # Return success response if successful
+        return jsonify({'message': result}), 200
     # Close the MongoDB connection
-
-    # Return a JSON response
-    return jsonify({'message': result}), 200
+    
+    # Return failure message if result is anything else
+    return jsonify({'message': result,}), 400
 
 # Route for checking in hardware
 @app.route('/check_in', methods=['POST'])
@@ -247,17 +249,20 @@ def check_in():
     data = request.json
     projectId = data['projectId']
     hwSetName = data['hwSetName']
-    amount = data['qty']
+    qty = data['qty']
     userId = data['userId']
 
     # Connect to MongoDB
 
     # Attempt to check in the hardware using the projectsDB module
-    result = projectsDB.checkInHW(g.db, projectId, hwSetName, amount, userId)
+    result = projectsDB.checkInHW(g.db, projectId, hwSetName, qty, userId)
+    if(result == "Successfully checked in."):
+        # Return success response if successful
+        return jsonify({'message': result}), 200
     # Close the MongoDB connection
-
-    # Return a JSON response
-    return jsonify({'message': result}), 200
+    
+    # Return failure message if result is anything else
+    return jsonify({'message': result,}), 400
 
 
 
@@ -266,13 +271,13 @@ def check_in():
 #HardwareSet handlers Below
 
 
-# Route for getting all hardware names
-@app.route('/get_all_hw_names', methods=['POST'])
-def get_all_hw_names():
+# Route for getting all hardware sets in a list
+@app.route('/get_all_hw_sets', methods=['POST'])
+def get_all_hw_sets():
     # Connect to MongoDB
 
-    # Fetch all hardware names using the hardwareDB module
-    result = hardwareDB.getAllHwNames(g.db)
+    # Fetch all hardware sets using the hardwareDB module
+    result = hardwareDB.getAllHWSets(g.db)
     # Close the MongoDB connection
 
     # Return a JSON response
