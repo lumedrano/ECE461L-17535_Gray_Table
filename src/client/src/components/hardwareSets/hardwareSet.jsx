@@ -17,7 +17,21 @@ const HardwareSets = () => {
     const { logout } = useAuth();
     const navigate = useNavigate();
 
-    const API_BASE_URL = process.env.APP_API_URL || 'http://127.0.0.1:5000';
+    //states for pop up message
+  const [popupMessage, setPopupMessage] = useState("");
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+
+    const API_BASE_URL = process.env.REACT_APP_API_URL || '';
+
+
+    const PopupMessage = ({ message, onClose }) => (
+        <div className="popup-message">
+          <div className="popup-content">
+            <p>{message}</p>
+            <button onClick={onClose}>Close</button>
+          </div>
+        </div>
+      );
 
     useEffect(() => {
         const fetchHardwareSets = async () => {
@@ -61,23 +75,27 @@ const HardwareSets = () => {
             const data = await response.json();
 
             if (response.ok) {
-                alert("Hardware Set Created Successfully");
+                setPopupMessage("Hardware Set Created Successfully");
+                setIsPopupVisible(true);
                 setNewHardwareName("");
                 setNewHardwareCapacity("");
                 setHardwareSets([...hardwareSets, { hwName: newHardwareName, capacity: parseInt(newHardwareCapacity, 10), availability: parseInt(newHardwareCapacity, 10) }]);
             } else {
                 console.error(`Error creating hardware set: ${data.message}`);
-                alert(`Failed to create hardware set: ${data.message}`);
+                setPopupMessage(`Failed to create hardware set: ${data.message}`);
+                setIsPopupVisible(true);
             }
         } catch (error) {
             console.error("An error occurred while creating the hardware set:", error);
-            alert("An error occurred. Please try again.");
+            setPopupMessage("An error occurred. Please try again.");
+            setIsPopupVisible(true);
         }
     };
 
     const handleCheckOut = async (index) => {
         if (parseInt(availabilityChange) < 0) {
-            alert("Please enter a positive number.");
+            setPopupMessage("Please enter a positive number.");
+            setIsPopupVisible(true);
             return;
         }
 
@@ -111,20 +129,24 @@ const HardwareSets = () => {
                     return set;
                 });
                 setHardwareSets(updatedHardwareSets);
-                alert("Checked Out Successfully");
+                setPopupMessage("Checked Out Successfully");
+                setIsPopupVisible(true);
             } else {
                 console.error(`Error checking out space: ${data.message}`);
-                alert(`Error: ${data.message}`);
+                setPopupMessage(`Error: ${data.message}`);
+                setIsPopupVisible(true);
             }
         } catch (error) {
             console.error("An error occurred:", error);
-            alert("An error occurred. Please try again.");
+            setPopupMessage("An error occurred. Please try again.");
+            setIsPopupVisible(true);
         }
     };
 
     const handleCheckIn = async (index) => {
         if (parseInt(availabilityChange) < 0) {
-            alert("Please enter a positive number.");
+            setPopupMessage("Please enter a positive number.");
+            setIsPopupVisible(true);
             return;
         }
 
@@ -158,14 +180,17 @@ const HardwareSets = () => {
                     return set;
                 });
                 setHardwareSets(updatedHardwareSets);
-                alert("Checked In Successfully");
+                setPopupMessage("Checked In Successfully");
+                setIsPopupVisible(true);
             } else {
                 console.error(`Error checking in space: ${data.message}`);
-                alert(`Error: ${data.message}`);
+                setPopupMessage(`Error: ${data.message}`);
+                setIsPopupVisible(true);
             }
         } catch (error) {
             console.error("An error occurred:", error);
-            alert("An error occurred. Please try again.");
+            setPopupMessage("An error occurred. Please try again.");
+            setIsPopupVisible(true);
         }
     };
 
@@ -244,6 +269,12 @@ const HardwareSets = () => {
                         )}
                     </div>
                 </div>
+                {isPopupVisible && (
+        <PopupMessage 
+          message={popupMessage} 
+          onClose={() => setIsPopupVisible(false)} 
+        />
+      )}
             </div>
             );
             };

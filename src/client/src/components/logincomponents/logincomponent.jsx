@@ -17,12 +17,25 @@ const UserManagement = () => {
   // New state for password visibility
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+
+  //states for pop up message
+  const [popupMessage, setPopupMessage] = useState("");
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
   
   const navigate = useNavigate();
   const [cookies, setCookie] = useCookies(['userID']);
   const { login } = useAuth();
 
-  const API_BASE_URL = process.env.APP_API_URL || 'http://127.0.0.1:5000';
+  const API_BASE_URL = process.env.REACT_APP_API_URL || '';
+
+  const PopupMessage = ({ message, onClose }) => (
+    <div className="popup-message">
+      <div className="popup-content">
+        <p>{message}</p>
+        <button onClick={onClose}>Close</button>
+      </div>
+    </div>
+  );
 
   const handleSignIn = async () => {
     try {
@@ -38,13 +51,16 @@ const UserManagement = () => {
         setCookie("userID", data.userId, { path: '/' });
         login(data.userId);
         alert("Sign in was a success!")
+        // isPopupVisible(true);
         navigate("/projects");
       } else {
-        alert(`Login failed: ${data.message}`);
+        setPopupMessage(`Login failed: ${data.message}`);
+        setIsPopupVisible(true);
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("An error occurred while trying to log in.");
+      setPopupMessage("An error occurred while trying to log in.");
+      setIsPopupVisible(true);
     }
   };
   
@@ -62,13 +78,16 @@ const UserManagement = () => {
         setCookie("userID", data.userId, { path: '/' });
         login(data.userId);
         setShowNewUserPopup(false);
-        alert("Sign up successful! You can now log in.");
+        setPopupMessage("Sign up successful! You can now log in.");
+        setIsPopupVisible(true);
       } else {
-        alert(`Sign-up failed: ${data.message}`);
+        setPopupMessage(`Sign-up failed: ${data.message}`);
+        setIsPopupVisible(true);
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("An error occurred while trying to create a new user.");
+      setPopupMessage("An error occurred while trying to create a new user.");
+      setIsPopupVisible(true);
     }
   };
 
@@ -157,6 +176,12 @@ const UserManagement = () => {
           </div>
         )}
       </div>
+      {isPopupVisible && (
+        <PopupMessage 
+          message={popupMessage} 
+          onClose={() => setIsPopupVisible(false)} 
+        />
+      )}
     </div>
   );  
 };

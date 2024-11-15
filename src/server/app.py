@@ -19,15 +19,15 @@ app = Flask(__name__)
 #TODO: use the following line instead of the above when deploying code to heroku
 # app = Flask(__name__, static_folder="./build", static_url_path='/')
 
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+CORS(app)
 
 
 #load in environmental variables
-load_dotenv()
+# load_dotenv()
 
 @app.before_request
 def before_request():
-    g.client = MongoClient(os.getenv('MONGODB_CONNECTION_STRING'), server_api=ServerApi('1'), tls=True, tlsAllowInvalidCertificates=True)
+    g.client = MongoClient('mongodb+srv://lumedrano:EcE21225@ece461l.ezc85.mongodb.net/?retryWrites=true&w=majority&appName=ECE461L', server_api=ServerApi('1'), tls=True, tlsAllowInvalidCertificates=True)
     g.db = g.client['ece461l_final_project']
 
 @app.teardown_request
@@ -353,11 +353,17 @@ def check_inventory():
     return jsonify({projects}), 200
 
 #index.html is the page we want to load as soon as the flask app starts. from the build folder after running npm run build
-# @app.route('/')
-# def index():
-#     return app.send_static_file('index.html')
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
+
+@app.errorhandler(404)
+def not_found(e):
+    return app.send_static_file('index.html')
 
 # Main entry point for the application
 if __name__ == '__main__':
     app.run(debug=True, ssl_context=None)  # Disable SSL for development
+# if __name__ == "__main__":
+#     app.run(host='0.0.0.0', debug=False, port=os.environ.get('PORT', 80))
 

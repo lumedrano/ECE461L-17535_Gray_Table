@@ -15,16 +15,6 @@ body {
     background: linear-gradient(45deg, #6e45e2, #88d3ce);
 }
 
-// .user-management-container {
-//     background: rgba(255, 255, 255, 0.1);
-//     padding: 20px;
-//     border-radius: 10px;
-//     backdrop-filter: blur(10px);
-//     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-//     animation: fadeIn 1.5s ease-in-out;
-//     width: 80%;
-// }
-
 h2 {
     color: #fff;
     margin-bottom: 20px;
@@ -35,13 +25,20 @@ h2 {
 
 .columns {
     display: flex;
-    justify-content: space-between;
+    width: 80%;
+    max-width: 1200px;
     margin-bottom: 20px;
+    gap: 20px; /* Space between columns */
 }
 
 .column {
     flex: 1;
-    margin: 0 10px; 
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 1.5s ease-in-out;
 }
 
 h3 {
@@ -100,10 +97,6 @@ button:hover {
     transform: translateY(-5px);
 }
 
-.popup {
-    display: block;
-}
-
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -128,9 +121,9 @@ button:hover {
     position: absolute;
     top: 20px;
     right: 20px;
-  }
+}
   
-  .logout-button {
+.logout-button {
     background-color: #ff6b6b;
     color: white;
     padding: 10px 20px;
@@ -138,8 +131,78 @@ button:hover {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-  
-    &:hover {
-      background-color: #ff4757;
-    }
+}
+
+.logout-button:hover {
+    background-color: #ff4757;
+}
+
+.project-list {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.project-item p {
+    color: #fff;
+}
+
+.project-action-buttons button {
+    margin: 0 5px;
+}
+
+
+.project-container {
+    display: flex;
+    gap: 2rem;
+    padding: 1rem;
   }
+  
+  .column {
+    flex: 1;
+  }
+  
+  .left-column,
+  .right-column {
+    background-color: #f4f4f4;
+    padding: 2rem;
+    border-radius: 8px;
+  }
+  
+  .logout-button-container {
+    text-align: right;
+  }
+  
+  .input-group {
+    margin-bottom: 1rem;
+  }
+  
+  .project-action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .joined-projects-area {
+    margin-top: 2rem;
+  }
+  .popup-message {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .popup-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }  
